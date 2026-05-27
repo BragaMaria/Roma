@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Абсолютно бесполезные факты | Сборник ненужного знания</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: #e9e3d5;
+            background-image: radial-gradient(circle at 25% 40%, rgba(180, 150, 100, 0.08) 2%, transparent 2.5%);
+            background-size: 48px 48px;
+            font-family: 'Segoe UI', 'Courier New', 'Fira Code', 'Times New Roman', monospace;
+            padding: 2rem 1rem;
+            color: #2d2a24;
+        }
+
+        /* основной контейнер — винтажная бумажная фактура */
+        .container {
+            max-width: 950px;
+            margin: 0 auto;
+            background: #fffdf7;
+            border-radius: 48px;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.1), 0 0 0 1px #ebe1c7 inset, 0 0 0 4px #f6efdf;
+            padding: 2rem 2rem 3rem;
+            transition: all 0.2s;
+        }
+
+        /* шапка с юмором */
+        .header {
+            text-align: center;
+            border-bottom: 2px dashed #e2cfaa;
+            padding-bottom: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #f3e9ce;
+            padding: 0.3rem 1.2rem;
+            border-radius: 60px;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            font-weight: bold;
+            color: #7a5a3a;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
+        }
+
+        h1 {
+            font-size: 2.9rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #4f3b28, #9b7b4c, #caa86b);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            letter-spacing: -0.5px;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.05);
+            font-family: 'Segoe UI', 'Georgia', serif;
+        }
+
+        .sub {
+            margin-top: 12px;
+            font-size: 1rem;
+            color: #a48c64;
+            font-style: italic;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .counter-info {
+            background: #f4efdf;
+            padding: 0.3rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            font-family: monospace;
+        }
+
+        /* сетка фактов (карточки) */
+        .facts-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1.2rem;
+            margin: 2rem 0 1.5rem;
+        }
+
+        .fact-card {
+            background: #ffffff;
+            border-radius: 36px;
+            padding: 1.2rem 1.5rem 1.2rem 2rem;
+            transition: all 0.2s ease;
+            border: 1px solid #f1e5cf;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.02);
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            backdrop-filter: blur(2px);
+            cursor: default;
+        }
+
+        .fact-card:hover {
+            transform: translateX(6px);
+            background: #fffaf0;
+            border-color: #e7cf9e;
+            box-shadow: 0 12px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .fact-icon {
+            font-size: 2.4rem;
+            min-width: 60px;
+            text-align: center;
+            filter: drop-shadow(2px 2px 2px rgba(0,0,0,0.1));
+        }
+
+        .fact-text {
+            flex: 1;
+            font-size: 1.08rem;
+            line-height: 1.45;
+            font-family: 'Segoe UI', 'Roboto', system-ui;
+            color: #3d3527;
+            font-weight: 500;
+        }
+
+        .fact-number {
+            font-family: monospace;
+            font-weight: bold;
+            color: #d6b575;
+            background: #fef5e6;
+            width: 38px;
+            height: 38px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 60px;
+            font-size: 1rem;
+        }
+
+        /* кнопка для генерации случайного факта (ненужная функция) */
+        .useless-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+            margin: 32px 0 16px;
+            padding-top: 12px;
+            border-top: 2px dotted #e9ddc1;
+        }
+
+        .random-fact-box {
+            background: #fef3e0;
+            border-radius: 48px;
+            padding: 0.8rem 1.8rem;
+            flex: 2;
+            min-width: 200px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .random-label {
+            font-size: 0.9rem;
+            font-weight: bold;
+            background: #e2cfaa;
+            padding: 4px 16px;
+            border-radius: 40px;
+            color: #4f3a20;
+        }
+
+        .random-fact-text {
+            font-size: 1rem;
+            font-family: monospace;
+            color: #7a633c;
+            font-weight: 500;
+        }
+
+        button {
+            background: #e5d5b5;
+            border: none;
+            font-size: 1rem;
+            padding: 10px 22px;
+            border-radius: 60px;
+            font-weight: bold;
+            color: #4f3f28;
+            cursor: pointer;
+            transition: 0.08s linear;
+            font-family: inherit;
+            box-shadow: 0 3px 0 #b59b6b;
+        }
+
+        button:active {
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #b59b6b;
+        }
+
+        .add-fact-btn {
+            background: #dac29c;
+            box-shadow: 0 3px 0 #9b7a4a;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* форма добавления нового бесполезного факта */
+        .add-fact-section {
+            background: #faf5ea;
+            margin-top: 28px;
+            border-radius: 52px;
+            padding: 1rem 1.8rem 1.8rem;
+            transition: 0.2s;
+        }
+
+        .add-title {
+            font-weight: bold;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #aa8753;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .input-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .fact-input {
+            flex: 3;
+            padding: 14px 20px;
+            border-radius: 60px;
+            border: 1px solid #e6d4b3;
+            background: white;
+            font-size: 0.95rem;
+            font-family: inherit;
+            outline: none;
+            transition: 0.1s;
+        }
+
+        .fact-input:focus {
+            border-color: #c7a45b;
+            box-shadow: 0 0 0 2px #f1e0be;
+        }
+
+        .submit-fact {
+            background: #cbb882;
+            color: #2c241a;
+            box-shadow: 0 3px 0 #8e6d3f;
+            padding: 12px 26px;
+        }
+
+        .footer-meta {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.7rem;
+            color: #bcab8b;
+            border-top: 1px dashed #e9ddc9;
+            padding-top: 24px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 1.3rem;
+            }
+            h1 {
+                font-size: 2rem;
+            }
+            .fact-card {
+                padding: 1rem;
+                flex-wrap: wrap;
+            }
+            .fact-icon {
+                font-size: 1.8rem;
+                min-width: 45px;
+            }
+            .fact-text {
+                font-size: 0.95rem;
+            }
+        }
+
+        /* анимация для нового факта */
+        @keyframes gentlePop {
+            0% { opacity: 0; transform: translateY(12px);}
+            100% { opacity: 1; transform: translateY(0);}
+        }
+        .fact-card.new {
+            animation: gentlePop 0.25s ease-out;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <div class="badge">⚠️ Абсолютная бесполезность ⚠️</div>
+        <h1>🗞️ НЕНУЖНЫЕ ФАКТЫ</h1>
+        <div class="sub">
+            <span>🧠 Загрузка знаний, которые НИКОГДА не пригодятся</span>
+            <span class="counter-info" id="factCounter">📚 фактов: 0</span>
+        </div>
+    </div>
+
+    <!-- Список фактов будет рендериться здесь -->
+    <div class="facts-grid" id="factsList"></div>
+
+    <!-- Блок "Случайный бесполезный факт" и кнопка -->
+    <div class="useless-actions">
+        <div class="random-fact-box">
+            <span class="random-label">🎲 СЛУЧАЙНЫЙ БРЕД</span>
+            <span id="randomFactSpan" class="random-fact-text">Нажми на кнопку ➡️</span>
+        </div>
+        <button id="randomFactBtn">🤡 Покажи ещё факт</button>
+    </div>
+
+    <!-- Форма добавления своего факта (ещё более ненужное действие) -->
+    <div class="add-fact-section">
+        <div class="add-title">
+            <span>📝 ПОПОЛНИТЬ БЕСПОЛЕЗНОСТЬ</span>
+            <span>🧩</span>
+        </div>
+        <div class="input-group">
+            <input type="text" id="newFactInput" class="fact-input" placeholder="Напиши свой ненужный факт... (например: 'У бегемотов пот розового цвета')" maxlength="180">
+            <button id="addFactBtn" class="submit-fact">➕ Добавить факт</button>
+        </div>
+        <div style="font-size: 0.7rem; margin-top: 12px; color:#baa479;">✨ Чем бессмысленнее — тем лучше. Факты ни на что не влияют.</div>
+    </div>
+    <div class="footer-meta">
+        ⚡ Коллекция фактов, которые не украсят вашу жизнь, но отнимут 10 секунд внимания ⚡
+    </div>
+</div>
+
+<script>
+    // ---------- БАЗА БЕСПОЛЕЗНЫХ И НЕНУЖНЫХ ФАКТОВ (стартовая коллекция) ----------
+    let uselessFacts = [
+        { id: 1, text: "У пчёл есть волосы на глазах. (абсолютно не пригодится в быту)", icon: "🐝" },
+        { id: 2, text: "В среднем человек за всю жизнь съедает около 8 пауков во сне — это миф, но сам факт легендарно бесполезен.", icon: "🕷️" },
+        { id: 3, text: "Бананы радиоактивны из-за калия-40, но чтобы умереть, нужно съесть 10 млн бананов за раз.", icon: "🍌" },
+        { id: 4, text: "Крокодилы не могут высовывать язык. Эта информация вам точно не поможет на собеседовании.", icon: "🐊" },
+        { id: 5, text: "Шнурки для обуви были изобретены в 1790 году, до этого использовали пряжки. Бесполезно, но приятно знать.", icon: "👟" },
+        { id: 6, text: "Сердце креветки находится в голове. (поздравляем, вы владелец бесполезного факта)", icon: "🦐" },
+        { id: 7, text: "В Японии есть остров кроликов (Окуносима), где живут тысячи кроликов. Но вам туда не надо, факт бесполезный.", icon: "🐇" },
+        { id: 8, text: "В среднем человек проводит 2 недели жизни, ожидая зелёный свет светофора.", icon: "🚦" },
+        { id: 9, text: "Осьминоги имеют три сердца и голубую кровь. Для налоговой это бесполезно.", icon: "🐙" },
+        { id: 10, text: "Невозможно пощекотать самого себя. Этот факт не делает вас богаче.", icon: "🤚" },
+        { id: 11, text: "Бананы на самом деле — ягоды, а клубника — нет. Теперь вы знаете, зачем? Ни зачем.", icon: "🍓" },
+        { id: 12, text: "Коровы имеют «лучших друзей» и испытывают стресс, когда разлучаются. Мило, но бесполезно.", icon: "🐄" },
+        { id: 13, text: "Полярные медведи при ультрафиолете выглядят чёрными. В тёмной комнате это не пригодится.", icon: "🐻‍❄️" },
+        { id: 14, text: "Динозавры жили так давно, что между стегозавром и тираннозавром больше времени, чем между тираннозавром и нами.", icon: "🦕" },
+        { id: 15, text: "Швейцарские ученые доказали: если смотреть на море, пульс замедляется. Но вы, вероятно, не у моря.", icon: "🌊" }
+    ];
+
+    let nextId = 16;   // следующий ID для новых фактов
+
+    // DOM элементы
+    const factsListDiv = document.getElementById('factsList');
+    const factCounterSpan = document.getElementById('factCounter');
+    const randomFactSpan = document.getElementById('randomFactSpan');
+    const randomFactBtn = document.getElementById('randomFactBtn');
+    const addFactBtn = document.getElementById('addFactBtn');
+    const newFactInput = document.getElementById('newFactInput');
+
+    // Функция рендеринга всего списка фактов
+    function renderFacts() {
+        if (!factsListDiv) return;
+        factsListDiv.innerHTML = '';
+        if (uselessFacts.length === 0) {
+            const emptyDiv = document.createElement('div');
+            emptyDiv.className = 'fact-card';
+            emptyDiv.style.justifyContent = 'center';
+            emptyDiv.innerHTML = `<div class="fact-icon">🤷</div><div class="fact-text">Упс! Нет ни одного бесполезного факта. Добавьте что-нибудь бессмысленное!</div>`;
+            factsListDiv.appendChild(emptyDiv);
+        } else {
+            // отображаем факты в порядке добавления (от новых к старым? лучше от старых к новым, но можно как есть, но reverse для наглядности)
+            // Чтобы последний добавленный был внизу, оставим исходный порядок (как в массиве, индексы растут). Но поскольку добавляем в конец, будет внизу.
+            uselessFacts.forEach(fact => {
+                const card = document.createElement('div');
+                card.className = 'fact-card';
+                card.dataset.id = fact.id;
+                card.innerHTML = `
+                    <div class="fact-icon">${fact.icon || '📄'}</div>
+                    <div class="fact-text">${escapeHtml(fact.text)}</div>
+                    <div class="fact-number">#${fact.id}</div>
+                `;
+                factsListDiv.appendChild(card);
+            });
+        }
+        // обновить счетчик
+        factCounterSpan.innerText = `📚 фактов: ${uselessFacts.length}`;
+    }
+
+    // вспомогательная функция для экранирования HTML (чтобы XSS не проскочил)
+    function escapeHtml(str) {
+        return str.replace(/[&<>]/g, function(m) {
+            if (m === '&') return '&amp;';
+            if (m === '<') return '&lt;';
+            if (m === '>') return '&gt;';
+            return m;
+        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+            return c;
+        });
+    }
+
+    // Добавление нового факта
+    function addNewFact(factText, icon = '🧩') {
+        let trimmed = factText.trim();
+        if (trimmed === "") {
+            alert("Бесполезный факт не может быть пустым! Это уже слишком полезно.");
+            return false;
+        }
+        if (trimmed.length > 200) {
+            trimmed = trimmed.slice(0, 197) + "...";
+        }
+        // генерируем случайную иконку для "бесполезности", но можно оставить стандартную, но юмор: выберем рандом из пула
+        const randomIcons = ['🧠', '📯', '🕰️', '⚙️', '🎭', '🧻', '🪶', '📌', '🧂', '🍄', '🪨', '🧦', '📎', '🎲', '🧴'];
+        const chosenIcon = icon === '🧩' ? randomIcons[Math.floor(Math.random() * randomIcons.length)] : icon;
+        
+        const newFact = {
+            id: nextId++,
+            text: trimmed,
+            icon: chosenIcon
+        };
+        uselessFacts.push(newFact);
+        renderFacts();
+        
+        // анимация для последней карточки
+        const allCards = document.querySelectorAll('.fact-card');
+        if (allCards.length) {
+            const lastCard = allCards[allCards.length - 1];
+            lastCard.classList.add('new');
+            setTimeout(() => lastCard.classList.remove('new'), 400);
+        }
+        return true;
+    }
+
+    // показать случайный факт (для блока random)
+    function getRandomFactText() {
+        if (uselessFacts.length === 0) return "Фактов пока нет. Добавьте бесполезность выше ☝️";
+        const randomIndex = Math.floor(Math.random() * uselessFacts.length);
+        const fact = uselessFacts[randomIndex];
+        return `${fact.icon} ${fact.text}`;
+    }
+
+    function updateRandomFactDisplay() {
+        randomFactSpan.innerText = getRandomFactText();
+    }
+
+    // Обработчик добавления из поля ввода
+    function handleAddFact() {
+        const rawText = newFactInput.value;
+        if (!rawText.trim()) {
+            alert("Ну напиши хоть что-то бесполезное! Например: 'У слизней четыре носа.'");
+            return;
+        }
+        addNewFact(rawText);
+        newFactInput.value = '';  // очистить поле
+        newFactInput.focus();
+        // также обновить случайный факт в блоке (легкое обновление)
+        updateRandomFactDisplay();
+    }
+
+    // Инициализация страницы + дополнительная кнопка случайного факта
+    function init() {
+        renderFacts();
+        updateRandomFactDisplay();
+        
+        // событие на кнопку random
+        randomFactBtn.addEventListener('click', () => {
+            updateRandomFactDisplay();
+            // мигание для комичности (микроэффект)
+            randomFactSpan.style.opacity = '0.7';
+            setTimeout(() => randomFactSpan.style.opacity = '1', 100);
+        });
+        
+        // добавление факта
+        addFactBtn.addEventListener('click', handleAddFact);
+        
+        // добавить возможность добавления по нажатию Enter
+        newFactInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                handleAddFact();
+            }
+        });
+        
+        // также добавим ненужную информацию в консоль — это тоже бесполезно
+        console.log("%c📢 ВАЖНО: Вы просматриваете коллекцию фактов, которые не влияют на вашу жизнь.", "color: #b4863b; font-size: 12px");
+    }
+    
+    // Стартуем всё
+    init();
+
+    // БОНУС: можно также добавить эмуляцию "бесполезной статистики" — но и так хорошо.
+    // Для фана: при клике на любую карточку появляется alert с тем же фактом? Это слишком навязчиво.
+    // Но сделаем ещё один совершенно ненужный эффект: при двойном клике на заголовок добавится случайный факт.
+    const headerTitle = document.querySelector('h1');
+    if (headerTitle) {
+        headerTitle.addEventListener('dblclick', () => {
+            const extraUseless = [
+                "В Австралии верблюды завезли из Афганистана, и теперь их там больше, чем в Афганистане.",
+                "У осьминога есть три сердца, и два из них останавливаются, когда он плывёт.",
+                "Курица может жить без головы около двух минут.",
+                "Бумага выдерживает сворачивание не более 7-8 раз.",
+                "В среднем человек пропускает 99% своего окружения."
+            ];
+            const randomExtra = extraUseless[Math.floor(Math.random() * extraUseless.length)];
+            addNewFact(randomExtra, '🔄');
+            updateRandomFactDisplay();
+            // показываем "секретный факт"
+            const toastMsg = document.createElement('div');
+            toastMsg.innerText = '✨ Секретный бесполезный факт добавлен ✨';
+            toastMsg.style.position = 'fixed';
+            toastMsg.style.bottom = '20px';
+            toastMsg.style.left = '50%';
+            toastMsg.style.transform = 'translateX(-50%)';
+            toastMsg.style.backgroundColor = '#2d241a';
+            toastMsg.style.color = '#ffe6b3';
+            toastMsg.style.padding = '8px 18px';
+            toastMsg.style.borderRadius = '60px';
+            toastMsg.style.fontSize = '0.8rem';
+            toastMsg.style.zIndex = '999';
+            toastMsg.style.fontFamily = 'monospace';
+            toastMsg.style.pointerEvents = 'none';
+            document.body.appendChild(toastMsg);
+            setTimeout(() => toastMsg.remove(), 1500);
+        });
+    }
+</script>
+</body>
+</html>

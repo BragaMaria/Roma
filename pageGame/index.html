@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>✨ Золотая лихорадка — поймай монетку ✨</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #1a472a 0%, #0e2a1a 100%);
+            font-family: 'Segoe UI', 'Poppins', 'Inter', system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* Атмосферные элементы: блеск и свечение */
+        body::before {
+            content: "";
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 20%, rgba(255, 215, 0, 0.1), transparent 70%);
+            pointer-events: none;
+        }
+
+        /* Главный контейнер игры */
+        .game-container {
+            max-width: 750px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.45);
+            backdrop-filter: blur(3px);
+            border-radius: 72px;
+            padding: 24px 20px 32px;
+            box-shadow: 0 30px 40px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(255, 200, 80, 0.5) inset;
+            transition: all 0.2s;
+            text-align: center;
+            border: 1px solid rgba(255, 215, 0, 0.6);
+        }
+
+        /* Шапка с балансом и счётом */
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 12px;
+            background: #00000055;
+            padding: 10px 24px;
+            border-radius: 60px;
+            margin-bottom: 28px;
+            backdrop-filter: blur(8px);
+        }
+
+        .score-box {
+            background: #2c2118;
+            padding: 8px 20px;
+            border-radius: 48px;
+            box-shadow: inset 0 1px 3px #00000033, 0 5px 10px rgba(0,0,0,0.2);
+        }
+
+        .score-label {
+            font-size: 0.85rem;
+            letter-spacing: 2px;
+            font-weight: 600;
+            color: #f9e0a0;
+            text-transform: uppercase;
+        }
+
+        .score-value {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #FFD966, #FFB347);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            line-height: 1;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        }
+
+        .best-box {
+            background: #1f2a1b;
+            padding: 8px 20px;
+            border-radius: 48px;
+            text-align: center;
+        }
+
+        .best-label {
+            font-size: 0.7rem;
+            color: #b9e6b3;
+        }
+
+        .best-value {
+            font-size: 1.6rem;
+            font-weight: bold;
+            color: #ffd966;
+        }
+
+        /* Игровое поле */
+        .game-field {
+            background: #1f3b2c;
+            background-image: radial-gradient(circle at 25% 40%, rgba(70, 130, 70, 0.4) 2%, transparent 2.5%);
+            background-size: 32px 32px;
+            border-radius: 48px;
+            min-height: 480px;
+            position: relative;
+            margin: 20px 0 20px;
+            box-shadow: inset 0 0 25px #00000044, 0 10px 20px rgba(0,0,0,0.3);
+            cursor: crosshair;
+            overflow: hidden;
+            border: 2px solid #e6b42266;
+        }
+
+        /* Контейнер для монет (динамическое размещение) */
+        #coinArea {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            min-height: 480px;
+        }
+
+        /* Стиль монетки */
+        .coin {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: radial-gradient(circle at 30% 30%, #FFE484, #F5B042);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.8rem;
+            font-weight: bold;
+            box-shadow: 0 10px 12px rgba(0,0,0,0.3), 0 0 0 3px #FFD966, 0 0 0 6px #b97f10;
+            cursor: pointer;
+            transition: all 0.08s linear;
+            animation: floatCoin 0.3s ease-out;
+            backdrop-filter: blur(1px);
+            color: #aa6f20;
+            text-shadow: 1px 1px 0 #ffdd99;
+        }
+
+        .coin:active {
+            transform: scale(0.85);
+            filter: brightness(1.2);
+        }
+
+        /* Анимация появления */
+        @keyframes floatCoin {
+            0% {
+                transform: scale(0.2) rotate(-20deg);
+                opacity: 0;
+            }
+            80% {
+                transform: scale(1.1) rotate(5deg);
+            }
+            100% {
+                transform: scale(1) rotate(0deg);
+                opacity: 1;
+            }
+        }
+
+        /* Анимация исчезновения при клике */
+        .coin-pop {
+            animation: popOff 0.15s forwards !important;
+        }
+
+        @keyframes popOff {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(1.8); opacity: 0; pointer-events: none; }
+        }
+
+        /* Кнопка рестарт / новая игра */
+        .action-bar {
+            margin: 24px 0 12px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .game-btn {
+            background: #2d1f18;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 50px;
+            font-weight: bold;
+            font-size: 1.2rem;
+            color: #ffe1a0;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: 0.1s linear;
+            box-shadow: 0 5px 0 #1a0f0b;
+            font-family: inherit;
+        }
+
+        .game-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #1a0f0b;
+        }
+
+        .reset-btn {
+            background: #2c3824;
+            box-shadow: 0 5px 0 #192117;
+            color: #ebffc2;
+        }
+
+        .timer-box {
+            background: #01010155;
+            padding: 5px 16px;
+            border-radius: 60px;
+            font-weight: bold;
+            font-size: 1.4rem;
+            font-family: monospace;
+            letter-spacing: 2px;
+            color: #ffeaaf;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .timer-value {
+            font-size: 1.9rem;
+            font-weight: 800;
+            background: #00000077;
+            padding: 0 8px;
+            border-radius: 30px;
+        }
+
+        /* Подсказка */
+        .game-tip {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            background: #00000066;
+            display: inline-block;
+            padding: 5px 18px;
+            border-radius: 30px;
+            color: #cfe6cf;
+        }
+
+        /* Адаптивность */
+        @media (max-width: 550px) {
+            .coin {
+                width: 55px;
+                height: 55px;
+                font-size: 2rem;
+            }
+            .game-field, #coinArea {
+                min-height: 400px;
+            }
+            .score-value {
+                font-size: 1.8rem;
+            }
+            .game-btn {
+                padding: 8px 18px;
+                font-size: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="game-header">
+        <div class="score-box">
+            <div class="score-label">💰 МОНЕТЫ</div>
+            <div class="score-value" id="scoreDisplay">0</div>
+        </div>
+        <div class="best-box">
+            <div class="best-label">🏆 РЕКОРД</div>
+            <div class="best-value" id="bestDisplay">0</div>
+        </div>
+        <div class="timer-box">
+            ⏱️ <span class="timer-value" id="timerDisplay">30</span> сек
+        </div>
+    </div>
+
+    <div class="game-field" id="gameField">
+        <div id="coinArea"></div>
+    </div>
+
+    <div class="action-bar">
+        <button class="game-btn reset-btn" id="resetGameBtn">🔄 НОВАЯ ИГРА</button>
+    </div>
+    <div class="game-tip">
+        💡 Кликай по золотым монеткам! Каждая монета = +1 очко. Игра длится 30 секунд. Успей больше!
+    </div>
+</div>
+
+<script>
+    (function() {
+        // ---------- ИГРОВЫЕ ПЕРЕМЕННЫЕ ----------
+        let score = 0;              // текущие очки
+        let bestScore = 0;         // рекорд (хранится в localStorage)
+        let timeLeft = 30;         // оставшееся время (секунды)
+        let gameActive = false;     // активна ли игра (таймер работает, монеты спавнятся)
+        let timerInterval = null;   // интервал таймера
+        let spawnInterval = null;   // интервал спавна монет
+        
+        // DOM элементы
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const bestDisplay = document.getElementById('bestDisplay');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const coinArea = document.getElementById('coinArea');
+        const resetBtn = document.getElementById('resetGameBtn');
+        const gameField = document.getElementById('gameField');
+        
+        // Загружаем рекорд из localStorage
+        function loadBestScore() {
+            const saved = localStorage.getItem('coinGameBest');
+            if (saved !== null && !isNaN(parseInt(saved))) {
+                bestScore = parseInt(saved);
+            } else {
+                bestScore = 0;
+            }
+            bestDisplay.innerText = bestScore;
+        }
+        
+        // сохранить рекорд
+        function saveBestScore() {
+            if (score > bestScore) {
+                bestScore = score;
+                bestDisplay.innerText = bestScore;
+                localStorage.setItem('coinGameBest', bestScore);
+            }
+        }
+        
+        // обновить отображение счета
+        function updateScoreUI() {
+            scoreDisplay.innerText = score;
+            if (score > bestScore) {
+                bestDisplay.innerText = score;  // моментальное обновление на экране (но сохраним позже)
+                // но сохраним по достижении конца игры или при каждом улучшении? сохраним при каждом улучшении
+                if (score > bestScore) {
+                    // сразу сохраняем в localStorage, но без дубляжа переменной
+                    bestScore = score;
+                    localStorage.setItem('coinGameBest', bestScore);
+                }
+            }
+        }
+        
+        // обновить таймер на экране
+        function updateTimerUI() {
+            timerDisplay.innerText = timeLeft;
+        }
+        
+        // полная остановка игры (таймеры, спавн, активность)
+        function stopGame(keepState = false) {
+            if (timerInterval) {
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+            if (spawnInterval) {
+                clearInterval(spawnInterval);
+                spawnInterval = null;
+            }
+            gameActive = false;
+            
+            // если keepState false — чистим поле от монет
+            if (!keepState) {
+                clearAllCoins();
+            }
+        }
+        
+        // очистка всех монет с поля
+        function clearAllCoins() {
+            while (coinArea.firstChild) {
+                coinArea.removeChild(coinArea.firstChild);
+            }
+        }
+        
+        // создать монетку в случайной позиции (в пределах gameField)
+        function spawnCoin() {
+            if (!gameActive) return;
+            
+            // получаем размеры контейнера coinArea (он занимает всю область gameField)
+            const fieldRect = gameField.getBoundingClientRect();
+            const coinContainerRect = coinArea.getBoundingClientRect();
+            // используем ширину/высоту coinArea, но поскольку монеты абсолютны внутри coinArea,
+            // координаты относительно coinArea (left, top от 0 до ширины/высоты)
+            const maxWidth = coinArea.clientWidth;
+            const maxHeight = coinArea.clientHeight;
+            
+            // если поле еще не отрисовало размеры (0) – отложить
+            if (maxWidth < 50 || maxHeight < 50) return;
+            
+            // размер монеты (примерно 70px, но для адаптивности)
+            const coinSize = (window.innerWidth <= 550) ? 55 : 70;
+            // безопасные границы чтобы монета не вылезала за края
+            const leftPos = Math.random() * (maxWidth - coinSize - 10) + 5;
+            const topPos = Math.random() * (maxHeight - coinSize - 10) + 5;
+            
+            const coin = document.createElement('div');
+            coin.className = 'coin';
+            // символ монетки или $
+            coin.innerHTML = '🪙';
+            coin.style.left = `${leftPos}px`;
+            coin.style.top = `${topPos}px`;
+            coin.style.position = 'absolute';
+            
+            // обработчик клика по монете
+            coin.addEventListener('click', (e) => {
+                e.stopPropagation();
+                if (!gameActive) return;
+                // добавляем эффект "сбора"
+                if (coin.classList.contains('coin-pop')) return; // уже исчезает
+                coin.classList.add('coin-pop');
+                // увеличиваем счет
+                score++;
+                updateScoreUI();
+                // сохраняем рекорд если побили
+                if (score > bestScore) {
+                    bestScore = score;
+                    localStorage.setItem('coinGameBest', bestScore);
+                    bestDisplay.innerText = bestScore;
+                }
+                // после анимации удаляем монету
+                setTimeout(() => {
+                    if (coin && coin.parentNode) coin.remove();
+                }, 130);
+                // добавить звуковой эффект? необязательно, но легкий визуал уже есть
+            });
+            
+            coinArea.appendChild(coin);
+            
+            // Авто-удаление монеты через 4 секунды, если не кликнули (чтобы поле не забивалось)
+            setTimeout(() => {
+                if (coin && coin.parentNode && gameActive) {
+                    // удаляем только если она еще жива и не имеет анимации исчезновения
+                    if (!coin.classList.contains('coin-pop')) {
+                        coin.remove();
+                    }
+                } else if (coin && coin.parentNode && !gameActive) {
+                    // игра кончилась — убираем всё
+                    coin.remove();
+                }
+            }, 4000);
+        }
+        
+        // запуск спавна монет (интервал)
+        function startSpawning() {
+            if (spawnInterval) clearInterval(spawnInterval);
+            // спавним каждые 0.8 секунды (динамически, чтобы было весело)
+            spawnInterval = setInterval(() => {
+                if (gameActive) {
+                    spawnCoin();
+                    // Иногда двойной спавн для азарта (шанс 30%)
+                    if (Math.random() < 0.3 && gameActive) {
+                        setTimeout(() => {
+                            if (gameActive) spawnCoin();
+                        }, 150);
+                    }
+                }
+            }, 800);
+        }
+        
+        // таймер обратного отсчета
+        function startTimer() {
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!gameActive) return;
+                if (timeLeft <= 1) {
+                    // время вышло!
+                    timeLeft = 0;
+                    updateTimerUI();
+                    endGame();
+                } else {
+                    timeLeft--;
+                    updateTimerUI();
+                }
+            }, 1000);
+        }
+        
+        // завершение игры: остановка всего, показываем итоговое сообщение, чистим монеты, блокируем клики
+        function endGame() {
+            if (!gameActive) return;
+            gameActive = false;
+            stopGame(true); // останавливаем таймеры, но не чистим монеты руками (чистим ниже)
+            clearAllCoins(); // убираем все монеты с поля
+            // финальное сохранение рекорда (на всякий)
+            if (score > bestScore) {
+                bestScore = score;
+                localStorage.setItem('coinGameBest', bestScore);
+                bestDisplay.innerText = bestScore;
+            }
+            // всплывающее уведомление об окончании игры
+            showGameOverMessage();
+        }
+        
+        // показать сообщение об окончании
+        function showGameOverMessage() {
+            const messageDiv = document.createElement('div');
+            messageDiv.style.position = 'absolute';
+            messageDiv.style.top = '50%';
+            messageDiv.style.left = '50%';
+            messageDiv.style.transform = 'translate(-50%, -50%)';
+            messageDiv.style.background = '#000000cc';
+            messageDiv.style.backdropFilter = 'blur(12px)';
+            messageDiv.style.padding = '20px 28px';
+            messageDiv.style.borderRadius = '60px';
+            messageDiv.style.border = '2px solid #ffd966';
+            messageDiv.style.color = '#FFE484';
+            messageDiv.style.fontWeight = 'bold';
+            messageDiv.style.fontSize = '1.4rem';
+            messageDiv.style.textAlign = 'center';
+            messageDiv.style.zIndex = '200';
+            messageDiv.style.pointerEvents = 'none';
+            messageDiv.style.fontFamily = 'inherit';
+            messageDiv.innerHTML = `⏰ ВРЕМЯ ВЫШЛО!<br>✨ Ваш результат: ${score} монет ✨<br>👑 Рекорд: ${bestScore}`;
+            gameField.style.position = 'relative';
+            gameField.appendChild(messageDiv);
+            
+            setTimeout(() => {
+                if (messageDiv && messageDiv.parentNode) messageDiv.remove();
+            }, 2600);
+        }
+        
+        // сброс/новая игра (полный рестарт)
+        function resetAndStartGame() {
+            // останавливаем всё текущее
+            stopGame(false);
+            // сбрасываем переменные
+            score = 0;
+            timeLeft = 30;
+            gameActive = true;
+            updateScoreUI();
+            updateTimerUI();
+            clearAllCoins();
+            // перезагружаем рекорд из хранилища (на случай внешних изменений)
+            loadBestScore();
+            // если текущий счет больше рекорда при сбросе — не должно быть, но корректируем отображение
+            if (score > bestScore) {
+                // (не может быть, т.к. score=0)
+            }
+            // запуск спавна и таймера
+            startSpawning();
+            startTimer();
+            
+            // добавим стартовую порцию монет (сразу пару штук)
+            setTimeout(() => {
+                if (gameActive) {
+                    for(let i=0;i<3;i++) {
+                        setTimeout(() => spawnCoin(), i*120);
+                    }
+                }
+            }, 50);
+        }
+        
+        // инициализация первого запуска игры при загрузке
+        function initGame() {
+            loadBestScore();
+            score = 0;
+            timeLeft = 30;
+            gameActive = true;
+            updateScoreUI();
+            updateTimerUI();
+            clearAllCoins();
+            startSpawning();
+            startTimer();
+            // стартовые монеты
+            setTimeout(() => {
+                if(gameActive) {
+                    for(let i=0;i<4;i++) {
+                        setTimeout(() => spawnCoin(), i*150);
+                    }
+                }
+            }, 100);
+        }
+        
+        // при клике на кнопку "Новая игра" — сбрасываем игру полностью
+        resetBtn.addEventListener('click', () => {
+            // полностью перезапускаем игровой процесс
+            stopGame(false);
+            score = 0;
+            timeLeft = 30;
+            gameActive = true;
+            updateScoreUI();
+            updateTimerUI();
+            clearAllCoins();
+            loadBestScore(); // актуализируем рекорд
+            // запуск заново
+            startSpawning();
+            startTimer();
+            setTimeout(() => {
+                if(gameActive) {
+                    for(let i=0;i<3;i++) setTimeout(() => spawnCoin(), i*100);
+                }
+            }, 50);
+        });
+        
+        // также отслеживаем изменение размера окна для корректных монет (необязательно, но монеты адаптируются)
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            if (!gameActive) return;
+            // при изменении размера, чтобы монеты не "уехали" — лучше перерисовать? Просто предупредим, 
+            // оставляем как есть, не ломается.
+            // Но можно пересчитать позиции? Не критично, так как игра быстрая.
+            if (resizeTimeout) clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                // ничего агрессивного, просто чтобы избежать ошибок
+            }, 200);
+        });
+        
+        // Стартуем игру
+        initGame();
+        
+        // Защита от двойных кликов на кнопку reset приводящая к множеству таймеров — в reset всё корректно остановлено
+        // дополнительная функция: если игра закончилась, новые монеты не спавнятся, а клики не работают.
+        // добавим окончательную приятную деталь - звука нет, но визуал с анимацией делает игру приятной.
+        
+        // (доп) небольшая динамика сложности: с каждой монетой не меняем, но спавн быстрый
+        console.log("Игра 'Поймай монетку' запущена! Кликай по золотым 🪙");
+    })();
+</script>
+</body>
+</html>

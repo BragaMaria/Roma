@@ -1,0 +1,97 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, sans-serif;
+}
+
+body {
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: radial-gradient(circle, #222, #000);
+  color: white;
+}
+
+.casino-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.card {
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid gold;
+  border-radius: 20px;
+  padding: 30px;
+  width: 380px;
+  text-align: center;
+  box-shadow: 0 0 25px rgba(255, 215, 0, 0.5);
+}
+
+h1 {
+  margin-bottom: 20px;
+  color: gold;
+}
+
+.balance,
+.bet {
+  font-size: 20px;
+  margin: 15px 0;
+}
+
+.chips {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.chips button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 10px;
+  background: gold;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.chips button:hover {
+  transform: scale(1.05);
+}
+
+.allin-btn {
+  margin-top: 15px;
+  width: 100%;
+  padding: 15px;
+  border: none;
+  border-radius: 15px;
+  background: linear-gradient(45deg, red, orange);
+  color: white;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.3s;
+  box-shadow: 0 0 20px rgba(255, 0, 0, 0.6);
+}
+
+.allin-btn:hover {
+  transform: scale(1.03);
+  box-shadow: 0 0 30px rgba(255, 100, 0, 0.9);
+}
+
+.slot-box {
+  margin: 25px 0;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  font-size: 50px;
+}
+
+#result {
+  font-size: 18px;
+  min-height: 30px;
+}

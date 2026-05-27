@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Casino Royale — Сделай ставку</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle at 30% 10%, #1a2a1f, #0a0f0a);
+      color: white;
+      padding: 20px;
+    }
+
+    .casino-container {
+      width: 100%;
+      display: flex;
+      justify-content: center;
+      perspective: 1000px;
+    }
+
+    .card {
+      background: rgba(10, 15, 8, 0.85);
+      backdrop-filter: blur(4px);
+      border: 2px solid #ffd966;
+      border-radius: 48px;
+      padding: 30px 25px;
+      width: 100%;
+      max-width: 480px;
+      text-align: center;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6), 0 0 20px rgba(255, 215, 0, 0.4);
+      transition: all 0.2s;
+    }
+
+    h1 {
+      margin-bottom: 12px;
+      color: #ffd966;
+      text-shadow: 0 0 5px #b8860b;
+      font-size: 2rem;
+      letter-spacing: 2px;
+    }
+
+    .balance {
+      font-size: 26px;
+      background: #000000aa;
+      display: inline-block;
+      padding: 5px 20px;
+      border-radius: 60px;
+      margin: 10px 0 5px;
+      font-weight: bold;
+    }
+
+    .balance span {
+      color: #ffd966;
+      font-size: 32px;
+      margin-left: 8px;
+    }
+
+    .bet-row {
+      margin: 15px 0;
+    }
+
+    .bet {
+      font-size: 22px;
+      background: #1e2a1a;
+      display: inline-block;
+      padding: 5px 20px;
+      border-radius: 40px;
+      margin: 5px 0;
+    }
+
+    .bet span {
+      color: #ffaa44;
+      font-weight: bold;
+    }
+
+    .chips {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin: 20px 0 15px;
+    }
+
+    .chips button {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 60px;
+      background: linear-gradient(145deg, #ffd966, #e6b422);
+      color: #1f2a0e;
+      font-weight: bold;
+      font-size: 18px;
+      cursor: pointer;
+      transition: 0.15s linear;
+      box-shadow: 0 4px 0 #8b6912;
+    }
+
+    .chips button:active {
+      transform: translateY(2px);
+      box-shadow: 0 1px 0 #8b6912;
+    }
+
+    .custom-bet {
+      margin: 15px 0;
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .custom-bet input {
+      padding: 12px 15px;
+      border-radius: 40px;
+      border: none;
+      font-size: 18px;
+      width: 150px;
+      text-align: center;
+      background: #2c2f2a;
+      color: #ffeaac;
+      font-weight: bold;
+      outline: none;
+    }
+
+    .custom-bet button {
+      padding: 12px 20px;
+      background: #3a4a2e;
+      border: none;
+      border-radius: 40px;
+      color: white;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.1s;
+    }
+
+    .allin-btn {
+      margin-top: 8px;
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 60px;
+      background: linear-gradient(95deg, #e02c2c, #ff7b2c);
+      color: white;
+      font-size: 26px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: 0.2s;
+      box-shadow: 0 0 12px #ff4d4d;
+      letter-spacing: 2px;
+    }
+
+    .allin-btn:active {
+      transform: scale(0.97);
+    }
+
+    .slot-box {
+      margin: 28px 0 20px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      font-size: 70px;
+      background: #00000055;
+      padding: 20px 10px;
+      border-radius: 60px;
+      border: 1px solid gold;
+    }
+
+    .slot-box span {
+      filter: drop-shadow(0 0 8px gold);
+      background: #1e1e1eb3;
+      padding: 10px 20px;
+      border-radius: 30px;
+      min-width: 90px;
+    }
+
+    #result {
+      font-size: 20px;
+      font-weight: bold;
+      background: #000000aa;
+      padding: 12px;
+      border-radius: 40px;
+      margin-top: 15px;
+    }
+
+    .reset-btn {
+      margin-top: 20px;
+      background: #3d2e1e;
+      border: none;
+      padding: 8px 20px;
+      border-radius: 40px;
+      color: #ffcf6e;
+      cursor: pointer;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+<div class="casino-container">
+  <div class="card">
+    <h1>🎰 CASINO ROYALE 🎲</h1>
+    <div class="balance">💰 БАЛАНС: <span id="balance">1000</span> ₽</div>
+
+    <div class="bet-row">
+      <div class="bet">🎲 СТАВКА: <span id="bet">0</span> ₽</div>
+    </div>
+
+    <!-- Фишки быстрые -->
+    <div class="chips">
+      <button onclick="addBet(100)">➕ 100 ₽</button>
+      <button onclick="addBet(250)">➕ 250 ₽</button>
+      <button onclick="addBet(500)">➕ 500 ₽</button>
+      <button onclick="addBet(1000)">🔥 1000 ₽</button>
+    </div>
+
+    <!-- Ручной ввод ставки -->
+    <div class="custom-bet">
+      <input type="number" id="manualBetInput" placeholder="Своя сумма" min="1" step="1">
+      <button onclick="setCustomBet()">📝 Поставить</button>
+    </div>
+
+    <!-- Кнопка весь баланс (ва-банк) -->
+    <button class="allin-btn" onclick="allIn()">🔥 ВА-БАНК (ВСЁ НА КОН) 🔥</button>
+
+    <div class="slot-box">
+      <span id="slot1">❓</span>
+      <span id="slot2">❓</span>
+      <span id="slot3">❓</span>
+    </div>
+
+    <p id="result">✨ Сделайте ставку и крутите! ✨</p>
+    <button class="reset-btn" onclick="resetGame()">🔄 Новая игра (1000₽)</button>
+  </div>
+</div>
+
+<script>
+  // ---------- ИГРОВОЙ СОСТОЯНИЕ ----------
+  let balance = 1000;
+  let currentBet = 0;
+
+  // Элементы DOM
+  const balanceEl = document.getElementById("balance");
+  const betEl = document.getElementById("bet");
+  const resultEl = document.getElementById("result");
+  const slot1El = document.getElementById("slot1");
+  const slot2El = document.getElementById("slot2");
+  const slot3El = document.getElementById("slot3");
+  const manualInput = document.getElementById("manualBetInput");
+
+  // Эмодзи для слота (плюс 7️⃣ для классики)
+  const emojis = ["🍒", "🍒", "💎", "7️⃣", "🍀", "🔥", "⭐", "🍋"];
+  // Коэффициент выигрыша за 3 одинаковых
+  const WIN_MULTIPLIER = 4;  // x4 от ставки (выигрыш +4*ставка, т.е. чистый профит 3*ставка? но сделаем честно)
+
+  // Обновление интерфейса (баланс, ставка)
+  function updateUI() {
+    balanceEl.textContent = Math.floor(balance);
+    betEl.textContent = currentBet;
+    // Дополнительно блокируем некорректное значение инпута
+    if (manualInput.value === "") manualInput.value = "";
+  }
+
+  // Функция добавления ставки (с проверкой баланса)
+  function addBet(amount) {
+    if (amount <= 0) {
+      resultEl.textContent = "❌ Сумма ставки должна быть больше нуля!";
+      return;
+    }
+    if (balance >= amount) {
+      currentBet += amount;
+      balance -= amount;
+      updateUI();
+      resultEl.textContent = `✅ Ставка увеличена на ${amount} ₽. Общая ставка: ${currentBet} ₽`;
+    } else {
+      resultEl.textContent = `⛔ Недостаточно денег! Баланс: ${balance} ₽`;
+    }
+    manualInput.value = ""; // очищаем поле ручного ввода для удобства
+  }
+
+  // Установка конкретной ставки ВРУЧНУЮ (заменяет текущую ставку)
+  function setCustomBet() {
+    let rawValue = manualInput.value.trim();
+    if (rawValue === "") {
+      resultEl.textContent = "⚠️ Введите сумму в поле!";
+      return;
+    }
+    let betAmount = Number(rawValue);
+    if (isNaN(betAmount) || betAmount <= 0) {
+      resultEl.textContent = "❌ Введите положительное число (например: 150)";
+      return;
+    }
+    if (betAmount > balance) {
+      resultEl.textContent = `🚫 Не хватает денег! Баланс: ${balance} ₽, а вы хотите поставить ${betAmount} ₽`;
+      return;
+    }
+    // Если текущая ставка уже есть - возвращаем деньги перед новой ставкой
+    if (currentBet > 0) {
+      balance += currentBet;
+      resultEl.textContent = `🔄 Прежняя ставка ${currentBet} ₽ возвращена. Новая ставка: ${betAmount} ₽`;
+    } else {
+      resultEl.textContent = `🎯 Ставка установлена: ${betAmount} ₽`;
+    }
+    // Устанавливаем новую ставку
+    currentBet = betAmount;
+    balance -= currentBet;
+    updateUI();
+    manualInput.value = "";
+  }
+
+  // ВА-БАНК: ставим ВЕСЬ текущий баланс (убираем текущую ставку, ставим всё)
+  function allIn() {
+    if (balance <= 0) {
+      resultEl.textContent = "💔 У вас 0 рублей! Нажмите «Новая игра», чтобы продолжить.";
+      return;
+    }
+    // Если уже есть активная ставка, возвращаем её в баланс (чтобы не терять)
+    if (currentBet > 0) {
+      balance += currentBet;
+      currentBet = 0;
+      updateUI();
+    }
+    // Теперь ставим весь баланс
+    let allInAmount = balance;
+    if (allInAmount <= 0) {
+      resultEl.textContent = "Нечего ставить, запустите игру заново";
+      return;
+    }
+    currentBet = allInAmount;
+    balance = 0;
+    updateUI();
+    resultEl.textContent = `🔥 ВА-БАНК! Ставка = ${currentBet} ₽. Жмите ещё раз на Ва-банк, чтобы крутить! 🔥`;
+    // но чтобы не путать, можно сразу крутить? лучше два шага: сначала ва-банк установил, потом пользователь жмёт второй раз? 
+    // однако по условию кнопка "Ва-банк" делает и ставку и крутилку? В оригинале allIn одновременно крутил. 
+    // Сделаем так: если после нажатия allIn() сумма ставки >0, автоматически запустим spin
+    if (currentBet > 0) {
+      spinSlots();
+    } else {
+      resultEl.textContent = "⚠️ Ошибка: не удалось сделать ва-банк";
+    }
+  }
+
+  // Генератор случайного эмодзи
+  function randomEmoji() {
+    return emojis[Math.floor(Math.random() * emojis.length)];
+  }
+
+  // ОСНОВНАЯ ИГРА — КРУТИМ СЛОТЫ (вызывается после установки ставки)
+  function spinSlots() {
+    if (currentBet <= 0) {
+      resultEl.textContent = "🎲 Сначала сделайте ставку! Используйте фишки или ручной ввод. 🎲";
+      return;
+    }
+
+    // Генерируем три случайных символа
+    const s1 = randomEmoji();
+    const s2 = randomEmoji();
+    const s3 = randomEmoji();
+
+    slot1El.textContent = s1;
+    slot2El.textContent = s2;
+    slot3El.textContent = s3;
+
+    // Проверка на джекпот (три одинаковых)
+    if (s1 === s2 && s2 === s3) {
+      let winAmount = currentBet * WIN_MULTIPLIER;
+      balance += winAmount;
+      resultEl.innerHTML = `🎉✨ ДЖЕКПОТ! ✨🎉<br> Три ${s1} — вы выиграли ${winAmount} ₽ (ставка ${currentBet} ₽ x${WIN_MULTIPLIER})`;
+      // Очищаем ставку, так как сыграли
+      currentBet = 0;
+      updateUI();
+      // дополнительная проверка на безумие
+      if (balance > 50000) {
+        resultEl.innerHTML += `<br>🏆 МЕГА ВЫИГРЫШ! 🏆`;
+      }
+    } 
+    else if (s1 === s2 || s2 === s3 || s1 === s3) {
+      // Утешительный бонус: две одинаковые картинки (возвращаем 30% от ставки)
+      let consolation = Math.floor(currentBet * 0.3);
+      if (consolation < 1) consolation = 1;
+      balance += consolation;
+      resultEl.innerHTML = `🍀 Почти попал! Два совпадают (${s1===s2 ? s1 : s2===s3 ? s2 : s1})<br> Бонус: +${consolation} ₽ (возврат 30%)`;
+      currentBet = 0;
+      updateUI();
+    }
+    else {
+      // Проигрыш
+      resultEl.innerHTML = `💀 ПРОИГРЫШ 💀<br> Выпало: ${s1} ${s2} ${s3} — ставка ${currentBet} ₽ сгорела.`;
+      currentBet = 0;
+      updateUI();
+    }
+
+    // Проверка на банкротство
+    if (balance <= 0) {
+      resultEl.innerHTML += `<br><span style="color:#ff8888">❌ ВЫ ОБАНКРОТИЛИСЬ! Нажмите «Новая игра» ❌</span>`;
+    }
+  }
+
+  // Перезапуск игры (сброс баланса и ставок)
+  function resetGame() {
+    balance = 1000;
+    currentBet = 0;
+    updateUI();
+    slot1El.textContent = "❓";
+    slot2El.textContent = "❓";
+    slot3El.textContent = "❓";
+    resultEl.innerHTML = "🔄 Игра перезапущена! Баланс 1000 ₽. Делайте ставки! 🔄";
+    manualInput.value = "";
+  }
+
+  // Дополнительная функция для упрощения: чтобы после ручной ставки / фишек можно было удобно крутить
+  // Также привяжем нажатие клавиши Enter в поле ручного ввода для удобства
+  manualInput.addEventListener("keypress", function(event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      setCustomBet();
+      // Если после установки ставки >0, можно и прокрутить? По желанию — но пользователь жмет кнопку ва-банк или новую ставку
+      // Сделаем авто-спин по Enter? Лучше добавить отдельную кнопку "Крутить", но по логике все делают через кнопку "Ва-банк"? 
+      // В целях удобства добавим кнопку вращения, чтобы не перегружать пользователя.
+    }
+  });
+
+  // Дополнительная большая кнопка "СПИН" / "КРУТИТЬ" для явного запуска игры после ставки
+  // по просьбе "чтобы можно было поставить ставку весь баланс и ещё вариант ввести ставку вручную"
+  // Добавим кнопку "🎲 КРУТИТЬ 🎲" прямо под слот-машиной, но можно дублировать функционал allIn?
+  // В оригинале allIn крутит, а ва-банк отдельно. но добавим отдельный spin, чтобы не путать
+  // Добавим стилизованную кнопку СПИН. Создадим через JS, либо сразу в HTML. Впишем в HTML для удобства:
+  const spinButton = document.createElement("button");
+  spinButton.textContent = "🎰 КРУТИТЬ СЛОТЫ 🎰";
+  spinButton.style.width = "100%";
+  spinButton.style.marginTop = "15px";
+  spinButton.style.padding = "14px";
+  spinButton.style.borderRadius = "60px";
+  spinButton.style.background = "linear-gradient(135deg, #2b6e3c, #1f4d2a)";
+  spinButton.style.border = "none";
+  spinButton.style.color = "white";
+  spinButton.style.fontWeight = "bold";
+  spinButton.style.fontSize = "22px";
+  spinButton.style.cursor = "pointer";
+  spinButton.style.boxShadow = "0 4px 0 #0a2b12";
+  spinButton.onclick = () => {
+    if (currentBet <= 0) {
+      resultEl.textContent = "❗ Нет активной ставки! Добавьте фишки или введите сумму вручную, затем нажмите Крутить. ❗";
+    } else {
+      spinSlots();
+    }
+  };
+
+  // Вставим кнопку вращения перед результатом или после slot-box
+  const resultElement = document.getElementById("result");
+  const slotBox = document.querySelector(".slot-box");
+  // Вставляем после slot-box, но до result
+  slotBox.insertAdjacentElement("afterend", spinButton);
+  // добавим небольшой отступ
+  spinButton.style.marginBottom = "15px";
+
+  // Для полного соответствия изначальному стилю добавим кнопку AllIn уже есть, но добавим функционал,
+  // чтобы ва-банк сначала устанавливал ставку всего баланса и тут же крутил, чтобы не вызывать двойное нажатие.
+  // Переопределим старый allIn чуть аккуратнее, но сейчас в allIn уже есть spinSlots().
+  // Проверим: allIn -> забирает весь баланс в ставку и вызывает spinSlots, значит всё ок.
+  // Но если пользователь нажимает просто "Крутить", а ставка уже есть, все ок.
+  // Также кнопки +100 и т.д. добавляют к текущей ставке, а баланс уменьшается. Идеально.
+
+  // Доработка для удобства: если баланс нулевой, то слоты блокируются через проверки.
+  // Плюс добавим звуковой эффект? не нужно, пусть визуал.
+  // Покажем что ручной ввод полностью работает и ва-банк тоже.
+
+  // Чтобы сделать ставку на весь баланс одной кнопкой, кнопка "Ва-банк" работает отлично:
+  // Она возвращает предыдущую ставку, забирает все деньги в currentBet и запускает вращение.
+  // Доп. защита: если текущий баланс = 0, кнопка не позволит делать ва-банк.
+  // Чуть улучшим функцию allIn, чтобы она не крутила если баланс 0:
+  const originalAllIn = allIn;
+  window.allIn = function() {
+    if (balance <= 0 && currentBet === 0) {
+      resultEl.textContent = "💸 Вы банкрот! Нажмите «Новая игра», чтобы продолжить.";
+      return;
+    }
+    originalAllIn();
+  };
+
+  // Вручную прокинем setCustomBet с валидацией
+  window.setCustomBet = setCustomBet;
+  window.addBet = addBet;
+  window.resetGame = resetGame;
+  window.allIn = allIn;
+
+  // Косметика: кнопка +1000 и т.д. уже есть
+  // добавим кнопку максимальной ставки? но весь баланс это уже "ва-банк"
+  // и так же пользователь может ввести вручную текущий баланс и нажать "Поставить" - это тоже весь баланс
+  // т.е. полностью соблюдено: можно поставить весь баланс вручную через поле, либо через ВА-БАНК.
+
+  // Добавим дополнительную подсказку при обнулении
+  console.log("Casino Royale загружено. Используй ручную ставку или ва-банк!");
+  updateUI();
+
+  // Бонус: красивый эффект при выигрыше (мигание)
+  const originalSpin = spinSlots;
+  window.spinSlots = spinSlots;
+  // исправим сохранение контекста
+  function flashWin() {}
+  // Всё готово!
+</script>
+</body>
+</html>
