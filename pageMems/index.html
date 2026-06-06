@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+  <title>Галерея мемов · Мемотека</title>
+  <!-- Подключаем стильный шрифт для атмосферы -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      background: linear-gradient(145deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      color: #f0f0f0;
+      padding: 1.5rem 1rem 2.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    /* Контейнер всей страницы */
+    .gallery-wrapper {
+      max-width: 1300px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* Шапка с неоновым настроением */
+    .header {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 0.75rem;
+    }
+
+    .header h1 {
+      font-size: clamp(2.2rem, 8vw, 3.8rem);
+      font-weight: 700;
+      background: linear-gradient(to right, #f7971e, #ffd200, #f7971e);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 15px rgba(247, 151, 30, 0.4);
+      letter-spacing: -0.5px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      font-weight: 500;
+      color: #b0c7e0;
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      padding: 0.5rem 1.8rem;
+      border-radius: 50px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .subtitle span {
+      font-size: 1.4rem;
+    }
+
+    /* Панель управления (поиск/фильтр) */
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: center;
+      gap: 1rem;
+      background: rgba(20, 30, 48, 0.7);
+      backdrop-filter: blur(16px);
+      padding: 1rem 1.8rem;
+      border-radius: 60px;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.5);
+      margin: 0 auto;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 40px;
+      padding: 0.3rem 0.3rem 0.3rem 1.3rem;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      flex: 1 1 250px;
+      max-width: 380px;
+    }
+
+    .search-box input {
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 1rem;
+      color: #ffffff;
+      width: 100%;
+      font-weight: 500;
+    }
+
+    .search-box input::placeholder {
+      color: #b0c7e0;
+      font-weight: 400;
+      opacity: 0.8;
+    }
+
+    .search-box button {
+      background: #f7971e;
+      border: none;
+      border-radius: 50%;
+      width: 38px;
+      height: 38px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: #1a1a2e;
+      font-size: 1.2rem;
+      font-weight: bold;
+      transition: 0.2s;
+      box-shadow: 0 4px 12px rgba(247, 151, 30, 0.5);
+    }
+
+    .search-box button:hover {
+      background: #ffb347;
+      transform: scale(1.04);
+    }
+
+    .filter-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+
+    .filter-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #d1d9e6;
+      padding: 0.55rem 1.4rem;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      backdrop-filter: blur(4px);
+      transition: all 0.25s ease;
+      letter-spacing: 0.3px;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .filter-btn.active {
+      background: #f7971e;
+      border-color: #f7971e;
+      color: #0f0f1a;
+      font-weight: 700;
+      box-shadow: 0 0 18px #f7971eaa;
+    }
+
+    .filter-btn:hover:not(.active) {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: rgba(255, 255, 255, 0.4);
+      color: white;
+    }
+
+    /* Сетка галереи */
+    .meme-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.8rem;
+      margin-top: 0.5rem;
+    }
+
+    /* Карточка мема */
+    .meme-card {
+      background: rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(14px);
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: linear-gradient(145deg, rgba(30, 30, 50, 0.7) 0%, rgba(20, 20, 40, 0.8) 100%);
+    }
+
+    .meme-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 30px 45px rgba(0, 0, 0, 0.7), 0 0 20px rgba(247, 151, 30, 0.3);
+      border-color: rgba(247, 151, 30, 0.5);
+    }
+
+    .image-container {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      overflow: hidden;
+      background: #0d1117;
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #202030, #12121f);
+    }
+
+    .meme-image {
+      width: 100%;
+      height: 100%;
+     
+      display: block;
+      transition: transform 0.4s ease;
+    }
+
+    .meme-card:hover .meme-image {
+      transform: scale(1.06);
+    }
+
+    /* Текст под картинкой */
+    .meme-info {
+      padding: 1rem 1.2rem 1.2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      flex: 1;
+    }
+
+    .meme-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+      color: #ffffff;
+      line-height: 1.3;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .meme-category {
+      font-size: 0.8rem;
+      background: rgba(247, 151, 30, 0.2);
+      color: #ffb85c;
+      padding: 0.2rem 0.7rem;
+      border-radius: 20px;
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      display: inline-block;
+      width: fit-content;
+    }
+
+    .meme-desc {
+      font-size: 0.9rem;
+      color: #bcc9dc;
+      font-weight: 400;
+      margin-top: 0.2rem;
+    }
+
+    /* Кнопка добавления (символическая, для будущего расширения) */
+    .add-meme-area {
+      display: flex;
+      justify-content: center;
+      margin-top: 2rem;
+    }
+
+    .add-btn {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      border: 2px dashed rgba(255, 255, 255, 0.4);
+      color: #ddd;
+      padding: 0.9rem 2.5rem;
+      border-radius: 50px;
+      font-weight: 600;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.25s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      letter-spacing: 0.5px;
+    }
+
+    .add-btn:hover {
+      background: rgba(247, 151, 30, 0.15);
+      border-color: #f7971e;
+      color: #ffd966;
+      box-shadow: 0 0 20px rgba(247, 151, 30, 0.3);
+    }
+
+    .footer-note {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: #7b8aa6;
+      font-size: 0.85rem;
+    }
+
+    /* Адаптив */
+    @media (max-width: 600px) {
+      .controls {
+        flex-direction: column;
+        border-radius: 30px;
+        padding: 1rem 1.2rem;
+      }
+      .search-box {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="gallery-wrapper">
+    <header class="header">
+      <h1>🔥 МЕМОТЕКА</h1>
+      <div class="subtitle">
+        <span>😂</span> коллекция свежих мемов <span>🐸</span>
+      </div>
+    </header>
+
+    <!-- Поиск и фильтры -->
+    <div class="controls">
+      <div class="search-box">
+        <input type="text" id="searchInput" placeholder="Поиск по названию..." autocomplete="off">
+        <button id="searchButton" aria-label="Искать">🔍</button>
+      </div>
+      <div class="filter-buttons" id="filterButtons">
+        <button class="filter-btn active" data-filter="all">Все мемы</button>
+        <button class="filter-btn" data-filter="classic">Классика</button>
+        <button class="filter-btn" data-filter="animal">Животные</button>
+        <button class="filter-btn" data-filter="reaction">Реакции</button>
+        <button class="filter-btn" data-filter="gaming">Игровые</button>
+      </div>
+    </div>
+
+    <!-- Сетка с мемами -->
+    <div class="meme-grid" id="memeGrid"></div>
+
+    <!-- Кнопка "добавить" (декоративная, но можно заменить на функционал) -->
+    <div class="add-meme-area">
+      <button class="add-btn" id="addMemeButton">
+        <span>➕</span> Загрузить свой мем
+      </button>
+    </div>
+    <div class="footer-note">
+      * все изображения взяты из открытых источников (placeholder мемы)
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const memes = [
+        {
+          id: 1,
+          title: "",
+          category: "",
+          description: "",
+          imageUrl: "https://i.pinimg.com/736x/9a/de/33/9ade334b36cbedb62034812315cfa74a.jpg", 
+        },
+        {
+          id: 2,
+          title: "",
+          category: "",
+          description: "",
+          imageUrl: "https://i.pinimg.com/736x/32/cd/01/32cd01e46b62d9e6e5b6e7a93060a860.jpg",
+        },
+        {
+          id: 3,
+          title: "",
+          category: "",
+          description: "",
+          imageUrl: "https://img.championat.com/GihTJr6PgQkWkme4ILY1QZhSGCaDbYvjgE3pQxSA74A/p(q:0)/i/o/w/1745295960235324817.jpg", 
+        },
+        {
+          id: 4,
+          title: "",
+          category: "",
+          description: "",
+          imageUrl: "https://avatars.mds.yandex.net/i?id=12d1b414ec8391abe3e79d8586a24376_l-10754966-images-thumbs&n=13", 
+        },
+        {
+          id: 5,
+          title: "",
+          category: "",
+          description: "",
+          imageUrl: "https://avatars.mds.yandex.net/i?id=a14822fa7b8df319c9656631faa6719d_l-5329060-images-thumbs&n=13",
+        },
+        {
+          id: 6,
+          title: "",
+          category: "",
+          description: "",
+          imageUrl: "https://i.pinimg.com/originals/6d/66/71/6d667103fef74a2ecb129b998b8257a0.jpg",
+        },
+        {
+          id: 7,
+          title: "",
+          category: "",
+          description: "",
+          imageUrl: "https://i.pinimg.com/originals/9a/e1/f0/9ae1f05d0bbb4229b6f24edaae1053cd.jpg",
+        },
+        {
+          id: 8,
+          title: "",
+          category: "",
+          description: "",
+          imageUrl: "https://i.pinimg.com/736x/04/6e/e0/046ee04d704c8ed03b40d249b4a46211.jpg",
+        },
+        {
+          id: 9,
+          title: "",
+          category: "",
+          description: "",
+          imageUrl: "https://images.meme-arsenal.com/664f5bc9d3b88737e5237a4f8f4adb45.jpg",
+        },
+        {
+          id: 10,
+          title: "",
+          category: "",
+          description: "",
+          imageUrl: "https://i.pinimg.com/videos/thumbnails/originals/d1/42/7f/d1427fa377849a56f680479ff8fee3e6.0000000.jpg",
+        },
+        {
+          id: 11,
+          title: "",
+          category: "",
+          description: "",
+          imageUrl: "https://avatars.mds.yandex.net/i?id=7399039587ffefbca0bc84e19da8ffab_l-9148169-images-thumbs&n=13",
+        },
+        {
+          id: 12,
+          title: "",
+          category: "",
+          description: "",
+          imageUrl: "https://img-webcalypt.ru/img/thumb/lg/33992/20258/SyK2vPEXFe5vIzDiml5RwwAzU8RIIoKxhB05kmff75BxrokbPleeF4uMkyKmJdNPehxTUfI2vsFu45VQyUq734W042xeaHf1LxdHbmOeWe65JwwkF3QcUgnz1RHKyFtB.jpeg.jpg",
+        },
+        {
+          id: 13,
+          title: "",
+          category: "",
+          description: "",
+          imageUrl: "https://media1.tenor.com/m/3WKiIz3tY4MAAAAd/%D0%BC%D0%B5%D0%BC%D1%8B.gif",
+        }
+      ];
+
+      
+      const memeGrid = document.getElementById('memeGrid');
+      const searchInput = document.getElementById('searchInput');
+      const searchButton = document.getElementById('searchButton');
+      const filterButtons = document.querySelectorAll('.filter-btn');
+      const addMemeBtn = document.getElementById('addMemeButton');
+
+      // Текущий фильтр и поисковый запрос
+      let currentFilter = 'all';
+      let searchQuery = '';
+
+      // Функция рендера карточек
+      function renderMemes() {
+        // Фильтрация
+        let filtered = memes.filter(meme => {
+          // Категория
+          if (currentFilter !== 'all' && meme.category !== currentFilter) {
+            return false;
+          }
+          // Поиск по названию (и части описания)
+          if (searchQuery.trim() !== '') {
+            const query = searchQuery.trim().toLowerCase();
+            return meme.title.toLowerCase().includes(query) || 
+                   meme.description.toLowerCase().includes(query);
+          }
+          return true;
+        });
+
+        // Очищаем сетку
+        memeGrid.innerHTML = '';
+
+        if (filtered.length === 0) {
+          memeGrid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 3rem; color: #b0c7e0; font-size: 1.3rem;">
+            😕 Мемы не найдены. Попробуйте изменить запрос.
+          </div>`;
+          return;
+        }
+
+        // Создаём карточки
+        filtered.forEach(meme => {
+          const card = document.createElement('div');
+          card.className = 'meme-card';
+          card.setAttribute('data-category', meme.category);
+
+          card.innerHTML = `
+            <div class="image-container">
+              <img src="${meme.imageUrl}" alt="${meme.title}" class="meme-image" loading="lazy">
+            </div>
+            <div class="meme-info">
+              <div class="meme-title">
+                ${meme.title}
+              </div>
+              <span class="meme-category">${getCategoryEmoji(meme.category)} ${getCategoryName(meme.category)}</span>
+              <p class="meme-desc">${meme.description}</p>
+            </div>
+          `;
+          memeGrid.appendChild(card);
+        });
+      }
+
+      // Вспомогательные функции для отображения категорий
+      function getCategoryEmoji(cat) {
+        switch(cat) {
+          case 'classic': return '🧢';
+          case 'animal': return '🐾';
+          case 'reaction': return '😲';
+          case 'gaming': return '🎮';
+          default: return '📌';
+        }
+      }
+
+      function getCategoryName(cat) {
+        switch(cat) {
+          case 'classic': return 'Классика';
+          case 'animal': return 'Животные';
+          case 'reaction': return 'Реакции';
+          case 'gaming': return 'Игровые';
+          default: return cat;
+        }
+      }
+
+      // Установка активного фильтра
+      function setActiveFilter(filterValue, clickedButton = null) {
+        currentFilter = filterValue;
+        // Обновляем классы кнопок
+        filterButtons.forEach(btn => {
+          const btnFilter = btn.getAttribute('data-filter');
+          if (btnFilter === filterValue) {
+            btn.classList.add('active');
+          } else {
+            btn.classList.remove('active');
+          }
+        });
+        renderMemes();
+      }
+
+      // Обработчики фильтров
+      filterButtons.forEach(btn => {
+        btn.addEventListener('click', function(e) {
+          const filter = this.getAttribute('data-filter');
+          setActiveFilter(filter, this);
+        });
+      });
+
+      // Поиск
+      function performSearch() {
+        searchQuery = searchInput.value;
+        renderMemes();
+      }
+
+      searchButton.addEventListener('click', performSearch);
+      searchInput.addEventListener('keyup', function(e) {
+        if (e.key === 'Enter') {
+          performSearch();
+        }
+        // Опционально живой поиск (можно раскомментировать для динамики)
+        // searchQuery = searchInput.value;
+        // renderMemes();
+      });
+
+      // Кнопка "Загрузить свой мем" (демо-уведомление)
+      addMemeBtn.addEventListener('click', () => {
+        alert('🖼️ Загрузка мемов появится позже! А пока наслаждайтесь коллекцией.');
+      });
+
+      // Инициализация
+      renderMemes();
+
+      // Дополнительно: сброс поиска при смене фильтра (удобно)
+      // Но оставим как есть, поиск сохраняется.
+    })();
+  </script>
+</body>
+</html>

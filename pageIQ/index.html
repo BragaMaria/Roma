@@ -1,0 +1,644 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>IQ Тест | Узнай себя</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(145deg, #e0e5ec 0%, #f0f4fa 100%);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px 16px;
+        }
+
+        /* главная карточка теста */
+        .test-container {
+            max-width: 780px;
+            width: 100%;
+            background: #ffffff;
+            border-radius: 44px;
+            box-shadow: 0 25px 45px -12px rgba(0, 0, 0, 0.25), 0 4px 12px rgba(0, 0, 0, 0.05);
+            overflow: hidden;
+            transition: all 0.2s ease;
+        }
+
+        /* шапка с заголовком "Узнай Себя" */
+        .test-header {
+            padding: 28px 32px 16px 32px;
+            border-bottom: 1px solid #eef2f8;
+        }
+
+        .test-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            letter-spacing: -0.3px;
+            background: linear-gradient(135deg, #1E2B3C, #2C3E50);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            display: inline-block;
+        }
+
+        /* область прогресса и пагинации (вдохновение 1 2 3 4 5 30 >) */
+        .progress-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 8px 32px 0 32px;
+            margin-bottom: 8px;
+        }
+
+        .question-counter {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #5c6f87;
+            background: #f0f4fa;
+            padding: 5px 12px;
+            border-radius: 40px;
+        }
+
+        .pagination-buttons {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: monospace;
+            font-weight: 600;
+            background: #f8fafd;
+            padding: 6px 12px;
+            border-radius: 60px;
+        }
+
+        .page-number {
+            font-size: 1rem;
+            font-weight: 600;
+            background: white;
+            width: 34px;
+            height: 34px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 30px;
+            color: #1f2a3e;
+            cursor: pointer;
+            transition: 0.1s linear;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+        }
+
+        .page-number.active-page {
+            background: #2c3e50;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+
+        .page-number:active { transform: scale(0.94);}
+        .nav-arrow {
+            font-size: 1.4rem;
+            font-weight: 600;
+            padding: 0 8px;
+            cursor: pointer;
+            user-select: none;
+            color: #4a627a;
+            transition: 0.1s;
+        }
+        .nav-arrow:active { transform: scale(0.9);}
+        .nav-arrow.disabled {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* основная область вопроса */
+        .question-card {
+            padding: 20px 32px 28px 32px;
+        }
+
+        .question-text {
+            font-size: 1.7rem;
+            font-weight: 600;
+            line-height: 1.3;
+            color: #0a1927;
+            margin-bottom: 36px;
+            letter-spacing: -0.2px;
+        }
+
+        /* шкала ответов в точности как на скрине: "Очень нравится" ... "Совсем не нравится" с цифрами 1-5 */
+        .scale-container {
+            margin: 20px 0 32px 0;
+        }
+
+        .scale-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .scale-label {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #2c3e50;
+            background: #f1f5f9;
+            padding: 5px 12px;
+            border-radius: 40px;
+            text-align: center;
+            flex: 1;
+            min-width: 70px;
+        }
+
+        .scale-label strong {
+            font-weight: 700;
+            color: #1e466e;
+        }
+
+        .scale-options {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            margin-top: 8px;
+        }
+
+        .scale-option {
+            flex: 1;
+            text-align: center;
+            background: #f9fbfd;
+            border-radius: 32px;
+            padding: 12px 0;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            border: 1.5px solid #e2e8f0;
+            font-weight: 600;
+            font-size: 1.2rem;
+            color: #1f2a44;
+        }
+
+        .scale-option.selected {
+            background: #1e2f3f;
+            border-color: #1e2f3f;
+            color: white;
+            box-shadow: 0 8px 14px -8px rgba(0,0,0,0.2);
+            transform: scale(0.98);
+        }
+
+        /* кнопки навигации внизу */
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 32px 32px 32px;
+            border-top: 1px solid #ecf3f9;
+            margin-top: 12px;
+        }
+
+        .btn {
+            padding: 12px 28px;
+            border-radius: 60px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            border: none;
+            background: #eef2f8;
+            color: #1f3a4b;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+
+        .btn-primary {
+            background: #2c3e50;
+            color: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .btn-primary:active {
+            background: #1e2f3f;
+            transform: scale(0.97);
+        }
+
+        .btn:active {
+            transform: scale(0.97);
+        }
+
+        .result-area {
+            background: #fefcf5;
+            border-radius: 32px;
+            margin: 20px 32px 32px 32px;
+            padding: 24px;
+            text-align: center;
+            border-left: 6px solid #2c3e50;
+        }
+
+        .result-score {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #1f3b4c;
+        }
+
+        .result-message {
+            margin-top: 12px;
+            color: #2c3e50;
+        }
+
+        /* прогресс бар стилизованный */
+        .progress-bar-wrapper {
+            padding: 0 32px 8px 32px;
+        }
+        .progress-bar-bg {
+            background: #e2e8f0;
+            border-radius: 20px;
+            height: 6px;
+            width: 100%;
+        }
+        .progress-fill {
+            background: #2c3e50;
+            width: 0%;
+            height: 6px;
+            border-radius: 20px;
+            transition: width 0.25s ease;
+        }
+
+        footer {
+            font-size: 0.7rem;
+            text-align: center;
+            padding: 16px 32px 24px;
+            color: #8a9bb0;
+            border-top: 1px solid #eff3f8;
+        }
+
+        @media (max-width: 550px) {
+            .question-text { font-size: 1.35rem; }
+            .scale-option { font-size: 1rem; padding: 8px 0; }
+            .scale-label { font-size: 0.7rem; min-width: 55px; }
+            .btn { padding: 10px 18px; }
+            .test-header h1 { font-size: 1.7rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="test-container" id="iqTestApp">
+    <div class="test-header">
+        <h1>Узнай Себя</h1>
+    </div>
+
+    <div class="progress-area">
+        <div class="question-counter" id="questionCounter">Вопрос 1 / 30</div>
+        <div class="pagination-buttons" id="paginationButtons">
+            <!-- динамические кнопки 1 2 3 ... 30 > -->
+        </div>
+    </div>
+
+    <div class="progress-bar-wrapper">
+        <div class="progress-bar-bg">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+    </div>
+
+    <div class="question-card" id="questionCard">
+        <div class="question-text" id="questionText">
+            Мне нравится решать сложные задачи
+        </div>
+        <div class="scale-container">
+            <div class="scale-labels">
+                <div class="scale-label"><strong>1</strong> Очень нравится</div>
+                <div class="scale-label"><strong>2</strong> Нравится</div>
+                <div class="scale-label"><strong>3</strong> Нейтрально</div>
+                <div class="scale-label"><strong>4</strong> Не нравится</div>
+                <div class="scale-label"><strong>5</strong> Совсем не нравится</div>
+            </div>
+            <div class="scale-options" id="scaleOptions">
+                <!-- 5 кнопок 1-5 -->
+            </div>
+        </div>
+    </div>
+
+    <div class="action-buttons">
+        <button class="btn" id="prevBtn">← Назад</button>
+        <button class="btn btn-primary" id="nextBtn">Далее →</button>
+    </div>
+
+    <div id="resultPanel" style="display: none;"></div>
+    <footer>⭐ Оцените утверждения от 1 до 5 — честные ответы помогут узнать себя</footer>
+</div>
+
+<script>
+    // ---------- ГЕНЕРАЦИЯ ВОПРОСОВ ДЛЯ IQ-ТЕСТА (30 уникальных, когнитивные, логические, самооценка) ----------
+    const questions = [
+        "Мне нравится решать сложные задачи",
+        "Я легко нахожу нестандартные решения в затруднительных ситуациях",
+        "Мне интересно разбираться в закономерностях и последовательностях",
+        "Я предпочитаю анализировать информацию, прежде чем принимать решение",
+        "Решение головоломок или логических игр доставляет мне удовольствие",
+        "Я быстро улавливаю суть новых концепций и идей",
+        "Мне нравится мысленно моделировать разные сценарии событий",
+        "Я часто замечаю детали, которые ускользают от других",
+        "Я могу долго концентрироваться на одной умственной задаче",
+        "Мне интересно изучать математические или абстрактные концепции",
+        "Я способен удерживать в уме несколько фактов одновременно",
+        "Критическое мышление — одна из моих сильных сторон",
+        "Мне легко даётся обучение новым навыкам",
+        "Я люблю искать причинно-следственные связи в происходящем",
+        "Мне нравится дебатировать и аргументировать свою точку зрения",
+        "Я могу быстро адаптироваться к изменениям правил в игре или задаче",
+        "Я часто решаю задачи в уме, не прибегая к записям",
+        "Я получаю удовольствие от сложных тестов и экзаменов",
+        "Я способен увидеть скрытые паттерны в наборе данных",
+        "Мне нравится оптимизировать процессы и находить эффективные способы",
+        "Я люблю шахматы, стратегии или логические игры",
+        "Мне легко даётся программирование / алгоритмическое мышление",
+        "Я часто задаюсь вопросом «почему?» и ищу глубокие объяснения",
+        "Я могу отслеживать длинные цепочки рассуждений без потери мысли",
+        "Мне нравится тестировать собственные когнитивные границы",
+        "Я способен интуитивно чувствовать правильный ответ в сложных задачах",
+        "Я предпочитаю сложные задания простым и однообразным",
+        "Я быстро обрабатываю новую информацию и делаю выводы",
+        "Мне нравится участвовать в интеллектуальных викторинах",
+        "Я чувствую удовлетворение, когда нахожу элегантное решение трудной проблемы"
+    ];
+
+    // убедимся что ровно 30
+    if(questions.length !== 30) console.warn("wrong questions count");
+    
+    // состояние приложения
+    let answers = new Array(30).fill(null);   // от 1 до 5 (число)
+    let currentIndex = 0;                     // 0-based
+
+    // DOM элементы
+    const questionTextEl = document.getElementById('questionText');
+    const scaleOptionsDiv = document.getElementById('scaleOptions');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const questionCounterSpan = document.getElementById('questionCounter');
+    const progressFill = document.getElementById('progressFill');
+    const paginationContainer = document.getElementById('paginationButtons');
+    const resultPanel = document.getElementById('resultPanel');
+    
+    // --- вспомогательные функции ---
+    function updateProgressFill() {
+        const answeredCount = answers.filter(a => a !== null).length;
+        const percent = (answeredCount / 30) * 100;
+        progressFill.style.width = `${percent}%`;
+    }
+
+    function updateCounterText() {
+        questionCounterSpan.innerText = `Вопрос ${currentIndex+1} / 30`;
+    }
+
+    // отрисовка кнопок шкалы для текущего вопроса (1-5)
+    function renderScaleForCurrent() {
+        const currentAnswer = answers[currentIndex];
+        scaleOptionsDiv.innerHTML = '';
+        for(let i=1; i<=5; i++) {
+            const btn = document.createElement('div');
+            btn.classList.add('scale-option');
+            if(currentAnswer === i) btn.classList.add('selected');
+            btn.innerText = i;
+            btn.dataset.value = i;
+            btn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                setAnswerForCurrent(i);
+                renderScaleForCurrent();    // перерисовать выделение
+                updatePaginationHighlight();
+                updateProgressFill();
+                // авто-переход? по желанию, но лучше не переходить автоматически, 
+                // но можно добавить переключение, но сохраним UX как классический тест
+            });
+            scaleOptionsDiv.appendChild(btn);
+        }
+    }
+
+    function setAnswerForCurrent(value) {
+        answers[currentIndex] = value;
+        // перерисовываем пагинацию (цифра меняет статус)
+        renderPaginationNumbers();
+        updateProgressFill();
+    }
+
+    // отрисовка пагинации: 1 2 3 ... 30 и стрелка >
+    function renderPaginationNumbers() {
+        paginationContainer.innerHTML = '';
+        // создаем до 10 элементов для удобства? но по скрину: 1 2 3 4 5 30 > 
+        // сделаем динамические номера: показываем первые 5, потом текущий кластер, потом 30 и стрелку
+        // для удобства стилизуем как на скрине: кнопки страниц (1,2,3,4,5,30, >)
+        // но чтобы быстро переключаться между вопросами, сделаем умную пагинацию: отображаем 1, ..., nearby, ..., 30 и стрелки
+        // Вдохновение из скрина: [1] [2] [3] [4] [5] [30] [>] 
+        // но всего 30 вопросов, логичнее: показываем текущий-2 ... текущий+2, крайние 
+        // Доработаем так, чтобы было удобно, но похоже на стиль.
+        
+        const total = 30;
+        // Кнопка "<" если нужно? на скрине нет, но добавим для навигации, оставим как стрелку влево в пагинации?
+        // строго по скрину: "1 2 3 4 5 30 >" - но это просто пример, реализуем элегантно:
+        // Добавим кнопку назад в пагинации? используем отдельные кнопки внизу, но для эстетики сделаем стрелку "влево" если текущий >1
+        const leftNavSpan = document.createElement('span');
+        leftNavSpan.innerText = '←';
+        leftNavSpan.className = 'nav-arrow';
+        if(currentIndex === 0) leftNavSpan.classList.add('disabled');
+        leftNavSpan.addEventListener('click', () => {
+            if(currentIndex > 0) {
+                currentIndex--;
+                loadQuestion();
+            }
+        });
+        paginationContainer.appendChild(leftNavSpan);
+        
+        // набор отображаемых номеров (1-индекс)
+        let pageNumbers = [];
+        if(total <= 8) {
+            for(let i=1;i<=total;i++) pageNumbers.push(i);
+        } else {
+            // показываем первый, последний, и вокруг текущего
+            pageNumbers.push(1);
+            if(currentIndex+1 <= 3) {
+                for(let i=2; i<=5; i++) pageNumbers.push(i);
+                pageNumbers.push('...');
+                pageNumbers.push(total);
+            } 
+            else if(currentIndex+1 >= total-2) {
+                pageNumbers.push('...');
+                for(let i=total-4; i<=total; i++) pageNumbers.push(i);
+            }
+            else {
+                pageNumbers.push('...');
+                for(let i=currentIndex; i<=currentIndex+2; i++) pageNumbers.push(i+1);
+                pageNumbers.push('...');
+                pageNumbers.push(total);
+            }
+            // фильтр уникальности и без дублей
+            const cleanNumbers = [];
+            for(let val of pageNumbers) {
+                if(val === '...') cleanNumbers.push('...');
+                else if(!cleanNumbers.includes(val) && val>=1 && val<=total) cleanNumbers.push(val);
+            }
+            pageNumbers = cleanNumbers;
+        }
+        
+        for(let num of pageNumbers) {
+            if(num === '...') {
+                const dotsSpan = document.createElement('span');
+                dotsSpan.innerText = '...';
+                dotsSpan.className = 'page-number';
+                dotsSpan.style.background = 'transparent';
+                dotsSpan.style.boxShadow = 'none';
+                dotsSpan.style.cursor = 'default';
+                paginationContainer.appendChild(dotsSpan);
+                continue;
+            }
+            const pageSpan = document.createElement('span');
+            pageSpan.innerText = num;
+            pageSpan.className = 'page-number';
+            if(currentIndex+1 === num) pageSpan.classList.add('active-page');
+            pageSpan.addEventListener('click', (e) => {
+                const newIdx = num - 1;
+                if(newIdx >=0 && newIdx < total) {
+                    currentIndex = newIdx;
+                    loadQuestion();
+                }
+            });
+            paginationContainer.appendChild(pageSpan);
+        }
+        
+        // правая стрелка >
+        const rightNavSpan = document.createElement('span');
+        rightNavSpan.innerText = '›';
+        rightNavSpan.className = 'nav-arrow';
+        if(currentIndex === total-1) rightNavSpan.classList.add('disabled');
+        rightNavSpan.addEventListener('click', () => {
+            if(currentIndex < total-1) {
+                currentIndex++;
+                loadQuestion();
+            } else if(currentIndex === total-1 && answers[currentIndex] !== null){
+                // на последнем вопросе, если нажать > показать результат? но по дизайну есть кнопка Далее, но сделаем проверку
+                if(allQuestionsAnswered()) showResults();
+                else alert("Ответьте на все вопросы перед финалом. Используйте кнопку 'Завершить'");
+            }
+        });
+        paginationContainer.appendChild(rightNavSpan);
+    }
+    
+    function updatePaginationHighlight() {
+        renderPaginationNumbers();
+    }
+    
+    function loadQuestion() {
+        // обновить текст вопроса
+        questionTextEl.innerText = questions[currentIndex];
+        renderScaleForCurrent();
+        updateCounterText();
+        updatePaginationHighlight();
+        updateProgressFill();
+        // управление кнопками навигации
+        if(currentIndex === 0) prevBtn.disabled = false; // не отключаем, но стили
+        if(currentIndex === 29) {
+            nextBtn.innerText = "Завершить ✓";
+        } else {
+            nextBtn.innerText = "Далее →";
+        }
+        // если результат виден скрываем
+        if(resultPanel.style.display === 'block') resultPanel.style.display = 'none';
+    }
+    
+    function allQuestionsAnswered() {
+        return answers.every(a => a !== null);
+    }
+    
+    function computeIQStyleResult() {
+        // Подсчёт по шкале: чем меньше сумма баллов (1 - очень нравится решать задачи => высокие когнитивные склонности)
+        // Но тест стилизован под IQ оценку, суммируем (чем меньше баллов, тем выше интерес/способности)
+        // сумма raw, преобразуем в шкалу от 80 до 145 примерно
+        let totalScore = 0;
+        for(let i=0;i<answers.length;i++) {
+            totalScore += answers[i];  // 1..5
+        }
+        // минимальный сырой балл 30, максимальный 150
+        // IQ условно: чем меньше балл, тем выше склонность к решению сложных задач => выше IQ-потенциал
+        let raw = totalScore;
+        let iqEstimate;
+        if(raw <= 55) iqEstimate = 138 + Math.floor((55-raw)/2);
+        else if(raw <= 75) iqEstimate = 125 + Math.floor((75-raw)/2);
+        else if(raw <= 95) iqEstimate = 110 + Math.floor((95-raw)/2);
+        else if(raw <= 120) iqEstimate = 95 + Math.floor((120-raw)/3);
+        else iqEstimate = 85 + Math.floor((150-raw)/4);
+        
+        iqEstimate = Math.min(155, Math.max(78, iqEstimate));
+        
+        let interpretation = "";
+        if(iqEstimate >= 130) interpretation = "💡 Выдающиеся аналитические способности! Вы словно маг логики. Тяга к сложным задачам — ваш двигатель.";
+        else if(iqEstimate >= 115) interpretation = "🧠 Отличный когнитивный потенциал. Вы любите решать нетривиальные проблемы и быстро схватываете суть.";
+        else if(iqEstimate >= 100) interpretation = "📊 Средний высокий диапазон. У вас хорошие задатки для интеллектуальной работы, развивайте дальше!";
+        else if(iqEstimate >= 85) interpretation = "🌱 Гибкое мышление, но иногда не хватает уверенности в сложных задачах. Практика улучшит результаты!";
+        else interpretation = "🌟 У вас уникальный стиль мышления. Попробуйте больше головоломок, и IQ-показатель возрастёт!";
+        
+        return { iq: iqEstimate, rawScore: raw, message: interpretation };
+    }
+    
+    function showResults() {
+        if(!allQuestionsAnswered()) {
+            alert("Пожалуйста, ответьте на все 30 вопросов, чтобы увидеть результат.");
+            return;
+        }
+        const { iq, rawScore, message } = computeIQStyleResult();
+        resultPanel.style.display = 'block';
+        resultPanel.innerHTML = `
+            <div class="result-area">
+                <div class="result-score">🧠 IQ-потенциал: ${iq}</div>
+                <div class="result-message" style="font-size:1rem; margin-top:8px;">${message}</div>
+                <div style="margin-top: 16px; font-size: 0.85rem; background:#eef2f5; border-radius:28px; padding:12px;">Ваш паттерн ответов: сумма баллов = ${rawScore} из 150.<br>Чем меньше сумма — тем выше предрасположенность к решению сложных задач.</div>
+                <button id="restartTestBtn" style="margin-top: 20px; background:#2c3e50; border:none; color:white; padding: 10px 24px; border-radius: 40px; font-weight:600; cursor:pointer;">⟳ Пройти заново</button>
+            </div>
+        `;
+        const restartBtn = document.getElementById('restartTestBtn');
+        if(restartBtn) restartBtn.addEventListener('click', () => {
+            answers.fill(null);
+            currentIndex = 0;
+            resultPanel.style.display = 'none';
+            loadQuestion();
+            updateProgressFill();
+            renderPaginationNumbers();
+        });
+        // пролистать к результату
+        resultPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    
+    // обработчики кнопок Назад / Далее
+    function onNext() {
+        if(answers[currentIndex] === null) {
+            alert("Пожалуйста, выберите вариант от 1 до 5 (от 'Очень нравится' до 'Совсем не нравится')");
+            return;
+        }
+        if(currentIndex === 29) {
+            // последний вопрос -> финиш
+            if(allQuestionsAnswered()) showResults();
+            else alert("Не все вопросы имеют ответы. Проверьте, нет ли пропущенных ранее.");
+        } else {
+            currentIndex++;
+            loadQuestion();
+        }
+    }
+    
+    function onPrev() {
+        if(currentIndex > 0) {
+            currentIndex--;
+            loadQuestion();
+        }
+    }
+    
+    // инициализация всех событий и первого рендера
+    function init() {
+        renderPaginationNumbers();
+        loadQuestion();
+        prevBtn.addEventListener('click', onPrev);
+        nextBtn.addEventListener('click', onNext);
+        updateProgressFill();
+    }
+    
+    init();
+</script>
+</body>
+</html>
