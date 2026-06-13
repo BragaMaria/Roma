@@ -1,0 +1,548 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Игра: Угадай мем - 67</title>
+    <style>
+        body { 
+            font-family: Arial; 
+            padding: 20px; 
+            max-width: 900px; 
+            margin: 0 auto;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 aspect ratio */
+            height: 0;
+            overflow: hidden;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            background: #000;
+        }
+        
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 15px;
+        }
+        
+        button { 
+            padding: 15px 30px; 
+            font-size: 18px; 
+            margin: 10px 5px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        button.recording {
+            background-color: #f44336;
+            animation: pulse 1s infinite;
+        }
+        
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        #status { 
+            margin: 10px 0; 
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            font-family: monospace;
+        }
+        
+        #output { 
+            border: 2px solid #ddd; 
+            padding: 15px; 
+            min-height: 100px;
+            margin-top: 20px;
+            font-size: 18px;
+            line-height: 1.5;
+            background: #fafafa;
+            border-radius: 10px;
+        }
+        
+        .result-box {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            transition: 0.3s;
+        }
+        
+        .correct {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            animation: celebrate 0.5s ease-out;
+        }
+        
+        .wrong {
+            background: linear-gradient(135deg, #f44336, #da190b);
+            color: white;
+        }
+        
+        @keyframes celebrate {
+            0% { transform: scale(0.9); opacity: 0; }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        .congrats {
+            font-size: 28px;
+            margin-top: 10px;
+            animation: bounce 0.5s ease;
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .interim {
+            color: gray;
+            font-style: italic;
+        }
+        
+        .final {
+            color: black;
+            font-weight: normal;
+        }
+        
+        .stats {
+            margin-top: 20px;
+            padding: 10px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        
+        .hint {
+            background: #e3f2fd;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            font-size: 16px;
+        }
+        
+        .correct-answer {
+            font-weight: bold;
+            color: #4CAF50;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>🎬 Угадай мем! 🎬</h2>
+        <p>Посмотрите видео и скажите в микрофон: <strong>как называется этот мем?</strong></p>
+        
+        <!-- ВСТАВЛЯЕМ ВИДЕО С RUTUBE -->
+        <div class="video-container">
+            <iframe 
+                src="https://rutube.ru/video/embed/97e39a29cae0df3ce36dad9ae11b95ba/" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                allowfullscreen>
+            </iframe>
+        </div>
+        
+        <div class="hint">
+            💡 Подсказка: это число, которое часто повторяется в видео!
+        </div>
+        
+        <div>
+            <button id="btn">🎤 Начать запись</button>
+            <button id="clearBtn" style="background-color: #ff9800;">🗑️ Очистить</button>
+            <button id="hintBtn" style="background-color: #2196F3;">💡 Показать ответ</button>
+        </div>
+        
+        <div id="status">Статус: готов</div>
+        <div id="output"></div>
+        <div id="result" class="result-box"></div>
+        
+        <div class="stats">
+            📊 Статистика: <span id="correctCount">0</span> ✅ правильных ответов, 
+            <span id="wrongCount">0</span> ❌ неправильных
+        </div>
+    </div>
+
+    <script>
+        const btn = document.getElementById('btn');
+        const outputDiv = document.getElementById('output');
+        const statusDiv = document.getElementById('status');
+        const resultDiv = document.getElementById('result');
+        const clearBtn = document.getElementById('clearBtn');
+        const hintBtn = document.getElementById('hintBtn');
+        const correctCountSpan = document.getElementById('correctCount');
+        const wrongCountSpan = document.getElementById('wrongCount');
+        
+        let finalText = '';
+        let interimText = '';
+        let isRecording = false;
+        let recognition = null;
+        
+        let correctAnswers = 0;
+        let wrongAnswers = 0;
+        
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        
+        // Функция проверки правильного ответа (мем "67")
+        function checkWord(text) {
+            const lowerText = text.toLowerCase().trim();
+            
+            // Варианты правильных ответов (разные варианты произношения)
+            const correctVariants = [
+                'шестьдесят семь',
+                '67',
+                'шестьдесят семь',
+                '67',
+                'шестьдесят семь мем',
+                '67 мем',
+                'номер 67',
+                'цифра 67',
+                'число 67',
+                'шестьдесят седьмой',
+                '67-й',
+                'sixty seven',
+                '67 number'
+            ];
+            
+            let isCorrect = false;
+            let foundWord = '';
+            
+            for (let variant of correctVariants) {
+                if (lowerText.includes(variant)) {
+                    isCorrect = true;
+                    foundWord = variant;
+                    break;
+                }
+            }
+            
+            // Проверка на отрицание
+            const negativePatterns = ['не 67', 'не шестьдесят семь', 'не 67 мем', 'не шестьдесят семь мем'];
+            for (let neg of negativePatterns) {
+                if (lowerText.includes(neg)) {
+                    isCorrect = false;
+                    break;
+                }
+            }
+            
+            return { isCorrect, foundWord, fullText: lowerText };
+        }
+        
+        // Функция отображения результата
+        function showResult(isCorrect, wordInfo) {
+            if (isCorrect) {
+                const congratsMessages = [
+                    '🎉 ПОЗДРАВЛЯЮ! Это МЕМ "67"! 🎉',
+                    '🔥 ПРАВИЛЬНО! Вы угадали мем! 🔥',
+                    '🌟 Отлично! Это легендарный мем 67! 🌟',
+                    '💪 Молодец! Теперь ты знаешь мем 67! 💪',
+                    '🏆 Гениально! Абсолютно верно! 🏆',
+                    '🎬 Правильно! Это классика! 🎬',
+                    '⭐ Браво! Ты разгадал мем! ⭐',
+                    '🎯 Точное попадание! Это 67! 🎯'
+                ];
+                const randomMessage = congratsMessages[Math.floor(Math.random() * congratsMessages.length)];
+                
+                resultDiv.innerHTML = `
+                    <div class="congrats">${randomMessage}</div>
+                    <div style="font-size: 20px; margin-top: 10px;">✅ Вы сказали: "${wordInfo.fullText}"</div>
+                `;
+                resultDiv.className = 'result-box correct';
+                
+                confettiEffect();
+                
+                correctAnswers++;
+                correctCountSpan.textContent = correctAnswers;
+                
+                // Озвучиваем поздравление
+                speakMessage(true);
+                
+            } else {
+                let feedbackMessage = '';
+                if (wordInfo.fullText.length > 0) {
+                    feedbackMessage = `❌ НЕПРАВИЛЬНО! Вы сказали: "${wordInfo.fullText}"\n\nПопробуйте ещё раз! Подсказка: это число 67! 🎬`;
+                } else {
+                    feedbackMessage = '❌ НЕПРАВИЛЬНО! Речь не распознана.\n\nПопробуйте сказать "67" или "шестьдесят семь" чётко и громко! 🎬';
+                }
+                
+                resultDiv.innerHTML = feedbackMessage;
+                resultDiv.className = 'result-box wrong';
+                
+                wrongAnswers++;
+                wrongCountSpan.textContent = wrongAnswers;
+                
+                // Озвучиваем ошибку
+                speakMessage(false);
+            }
+            
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+        
+        // Эффект конфетти
+        function confettiEffect() {
+            if (typeof confetti === 'function') {
+                confetti({
+                    particleCount: 200,
+                    spread: 100,
+                    origin: { y: 0.6 },
+                    colors: ['#4CAF50', '#2196F3', '#FF9800', '#f44336']
+                });
+            }
+        }
+        
+        // Озвучивание
+        function speakMessage(isCorrect) {
+            if ('speechSynthesis' in window) {
+                let message = '';
+                if (isCorrect) {
+                    const messages = [
+                        'Поздравляю! Это мем 67!',
+                        'Отлично! Правильно!',
+                        'Молодец! Ты угадал мем!',
+                        'Супер! Это 67!'
+                    ];
+                    message = messages[Math.floor(Math.random() * messages.length)];
+                } else {
+                    const messages = [
+                        'Попробуйте еще раз. Ответ - 67.',
+                        'Неправильно. Это мем 67.',
+                        'Не угадал. Правильный ответ - 67.'
+                    ];
+                    message = messages[Math.floor(Math.random() * messages.length)];
+                }
+                
+                const utterance = new SpeechSynthesisUtterance(message);
+                utterance.lang = 'ru-RU';
+                utterance.rate = 0.9;
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(utterance);
+            }
+        }
+        
+        function updateDisplay() {
+            let html = '';
+            if (finalText) {
+                html += `<span class="final">${escapeHtml(finalText)}</span>`;
+            }
+            if (interimText) {
+                html += `<span class="interim">${escapeHtml(interimText)}</span>`;
+            }
+            if (!finalText && !interimText) {
+                html = '<span style="color: #999;">Скажите "67" или "шестьдесят семь"...</span>';
+            }
+            outputDiv.innerHTML = html;
+        }
+        
+        function initRecognition() {
+            if (recognition) {
+                try {
+                    recognition.abort();
+                } catch(e) {}
+            }
+            
+            recognition = new SpeechRecognition();
+            recognition.lang = 'ru-RU';
+            recognition.interimResults = true;
+            recognition.continuous = false;
+            recognition.maxAlternatives = 1;
+            
+            recognition.onstart = () => {
+                console.log('✅ Распознавание началось');
+                statusDiv.innerHTML = '🎙️ Слушаю... Назовите мем! Говорите "67" или "шестьдесят семь"';
+                statusDiv.className = '';
+                resultDiv.innerHTML = '🤔 Ожидание ответа...';
+                resultDiv.className = 'result-box';
+            };
+            
+            recognition.onresult = (event) => {
+                console.log('🎯 Результат получен', event);
+                
+                interimText = '';
+                let fullTranscript = '';
+                
+                for (let i = 0; i < event.results.length; i++) {
+                    const result = event.results[i];
+                    const transcript = result[0].transcript;
+                    fullTranscript += transcript + ' ';
+                    
+                    if (result.isFinal) {
+                        finalText = transcript;
+                        console.log('✅ Финальный текст:', finalText);
+                    } else {
+                        interimText = transcript;
+                        console.log('🔄 Промежуточный текст:', interimText);
+                    }
+                }
+                
+                updateDisplay();
+                
+                if (event.results[0].isFinal) {
+                    const wordInfo = checkWord(finalText);
+                    showResult(wordInfo.isCorrect, wordInfo);
+                    
+                    setTimeout(() => {
+                        if (isRecording) {
+                            recognition.stop();
+                        }
+                    }, 500);
+                }
+            };
+            
+            recognition.onerror = (event) => {
+                console.error('❌ Ошибка:', event.error);
+                
+                if (event.error === 'no-speech') {
+                    statusDiv.innerHTML = '⚠️ Речи не слышно. Нажмите кнопку и скажите "67"';
+                    statusDiv.className = 'warning';
+                } else if (event.error === 'audio-capture') {
+                    statusDiv.innerHTML = '❌ Микрофон не найден';
+                    statusDiv.className = 'error';
+                } else if (event.error === 'not-allowed') {
+                    statusDiv.innerHTML = '❌ Нет доступа к микрофону. Разрешите доступ в браузере';
+                    statusDiv.className = 'error';
+                }
+            };
+            
+            recognition.onend = () => {
+                console.log('🛑 Распознавание завершено');
+                
+                if (isRecording) {
+                    btn.textContent = '🎤 Начать запись';
+                    btn.classList.remove('recording');
+                    isRecording = false;
+                    
+                    if (!finalText) {
+                        statusDiv.innerHTML = 'Статус: речь не распознана. Попробуйте ещё раз';
+                    } else {
+                        statusDiv.innerHTML = 'Статус: готов к следующей попытке';
+                    }
+                }
+            };
+            
+            recognition.onsoundstart = () => {
+                console.log('🔊 Звук обнаружен');
+                statusDiv.innerHTML = '🎙️ Слышу! Распознаю...';
+            };
+            
+            recognition.onspeechend = () => {
+                console.log('🗣️ Речь закончилась');
+                statusDiv.innerHTML = '🎙️ Обработка...';
+            };
+            
+            return recognition;
+        }
+        
+        btn.onclick = () => {
+            if (isRecording) {
+                console.log('⏹️ Остановка по кнопке');
+                isRecording = false;
+                if (recognition) {
+                    try {
+                        recognition.stop();
+                    } catch(e) {}
+                }
+                btn.textContent = '🎤 Начать запись';
+                btn.classList.remove('recording');
+                statusDiv.innerHTML = 'Статус: запись остановлена';
+            } else {
+                console.log('▶️ Запуск распознавания');
+                finalText = '';
+                interimText = '';
+                updateDisplay();
+                resultDiv.innerHTML = '';
+                
+                isRecording = true;
+                recognition = initRecognition();
+                
+                try {
+                    recognition.start();
+                    btn.textContent = '🔴 Остановить запись';
+                    btn.classList.add('recording');
+                } catch(error) {
+                    console.error('Ошибка запуска:', error);
+                    statusDiv.innerHTML = `❌ Ошибка: ${error.message}`;
+                    isRecording = false;
+                }
+            }
+        };
+        
+        clearBtn.onclick = () => {
+            finalText = '';
+            interimText = '';
+            updateDisplay();
+            resultDiv.innerHTML = '';
+            resultDiv.className = 'result-box';
+            statusDiv.innerHTML = 'Статус: текст очищен';
+        };
+        
+        hintBtn.onclick = () => {
+            resultDiv.innerHTML = `
+                <div style="font-size: 20px;">
+                    💡 Подсказка: этот мем называется <span class="correct-answer">"67"</span> или <span class="correct-answer">"шестьдесят семь"</span>!
+                </div>
+            `;
+            resultDiv.className = 'result-box';
+            resultDiv.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Опционально: озвучить подсказку
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance('Правильный ответ - 67 или шестьдесят семь');
+                utterance.lang = 'ru-RU';
+                utterance.rate = 0.9;
+                window.speechSynthesis.cancel();
+                window.speechSynthesis.speak(utterance);
+            }
+        };
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+        
+        // Проверка микрофона
+        async function testMicrophone() {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                console.log('✅ Микрофон доступен');
+                stream.getTracks().forEach(track => track.stop());
+                statusDiv.innerHTML = 'Статус: готов ✅ Микрофон работает';
+            } catch(err) {
+                console.error('❌ Микрофон НЕ ДОСТУПЕН:', err);
+                statusDiv.innerHTML = '⚠️ Проверьте разрешение на микрофон в браузере';
+                statusDiv.className = 'error';
+            }
+        }
+        
+        testMicrophone();
+        console.log('🎮 Игра "Угадай мем" запущена! Правильный ответ: 67');
+    </script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1"></script>
+</body>
+</html>
