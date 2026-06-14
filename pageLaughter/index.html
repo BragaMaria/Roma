@@ -91,6 +91,30 @@
         </div>
     </div>
 
+
+    <div class="video-container">
+        
+        <video id="video4" src="../16056171170410.mp4"></video>
+        
+        <div class="controls">
+            <button id="playPauseBtn4">▶️ Воспроизвести</button>
+            <button id="restartBtn4">🔄 Заново</button>
+            <input type="range" id="volumeSlider4" min="0" max="1" step="0.01" value="1">
+            <span id="timeDisplay4" class="time-display">0:00 / 0:00</span>
+        </div>
+    </div>
+
+    <div class="video-container">
+        
+        <video id="video5" src="../10542240303673.mp4"></video>
+        
+        <div class="controls">
+            <button id="playPauseBtn5">▶️ Воспроизвести</button>
+            <button id="restartBtn5">🔄 Заново</button>
+            <input type="range" id="volumeSlider5" min="0" max="1" step="0.01" value="1">
+            <span id="timeDisplay5" class="time-display">0:00 / 0:00</span>
+        </div>
+    </div>
     <script>
         // Функция для создания управления видео
         function setupVideoControls(videoId, playPauseId, restartId, volumeId, timeId) {
@@ -154,6 +178,8 @@
         setupVideoControls('video1', 'playPauseBtn1', 'restartBtn1', 'volumeSlider1', 'timeDisplay1');
         setupVideoControls('video2', 'playPauseBtn2', 'restartBtn2', 'volumeSlider2', 'timeDisplay2');
         setupVideoControls('video3', 'playPauseBtn3', 'restartBtn3', 'volumeSlider3', 'timeDisplay3');
+        setupVideoControls('video4', 'playPauseBtn4', 'restartBtn4', 'volumeSlider4', 'timeDisplay4');
+        setupVideoControls('video5', 'playPauseBtn5', 'restartBtn5', 'volumeSlider5', 'timeDisplay5');
         
         console.log('✅ Оба видео готовы к воспроизведению!');
     </script>
